@@ -257,11 +257,12 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
         style={{
           backgroundImage: `url(${bgImage})`,
           opacity: 1.0,
-          // 📱 Ajuste mobile: remove o scale para evitar bordas pretas nas laterais
-          // Mantém apenas o deslocamento vertical para preservar o enquadramento atual
-          transform: isMobile ? 'translateY(-150px)' : 'translateY(-150px) scale(0.82)',
+          // 📱 Mobile: evitar zoom para não criar rolagem e manter cobertura total.
+          // Em vez de usar transform para reposicionar, usamos backgroundPositionY negativo,
+          // que não afeta o fluxo de layout e evita overflow.
+          transform: isMobile ? 'none' : 'translateY(-150px) scale(0.82)',
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: isMobile ? 'center -120px' : 'center',
           width: '100%',
           height: '100%',
           minWidth: '100vw',
@@ -285,7 +286,11 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
         }} />
       </div>
 
-      <div className="w-full max-w-[360px] px-4 sm:max-w-xs sm:px-0 relative z-10 mt-56">
+      <div 
+        className="w-full max-w-[360px] px-4 sm:max-w-xs sm:px-0 relative z-10 mt-56"
+        // 📱 Mobile: reduzir a margem superior para caber sem rolagem vertical
+        style={{ marginTop: isMobile ? '4.5rem' as any : undefined }}
+      >
         {/* Login Card */}
         <div className="space-y-3">
           <form onSubmit={handleSubmit} className="space-y-2">
