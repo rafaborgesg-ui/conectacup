@@ -54,9 +54,9 @@
           orientation: 'portrait',
           categories: ['productivity', 'business'],
           icons: [
-            { src: '/icons/icon.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
-            { src: '/icons/icon.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
-            { src: '/icons/maskable.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
+            { src: '/icons/iconeapp.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icons/iconeapp.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: '/icons/iconeapp.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
           shortcuts: [
             { name: 'Gestão de Carga', short_name: 'Carga', url: '/?m=gestao-carga', description: 'Abrir Gestão de Carga' },
@@ -64,7 +64,7 @@
             { name: 'Relatórios', short_name: 'Relatórios', url: '/?m=reports' },
           ],
         },
-        includeAssets: ['icons/icon.svg', 'icons/maskable.svg'],
+        includeAssets: ['icons/iconeapp.png'],
       }),
     ],
     resolve: {
