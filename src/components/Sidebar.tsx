@@ -49,7 +49,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
   const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
       // Se perfil "carga", exibe apenas o item específico "gestao-carga"
-      if (!isLoading && profile?.id === 'carga') {
+      if (profile?.id && String(profile.id).toLowerCase() === 'carga') {
         return item.id === 'gestao-carga';
       }
 

@@ -125,8 +125,8 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
   // Filtra itens do menu baseado em permissões (espelho do Sidebar)
   const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
-      // Perfil "carga": só vê Gestão de Carga
-      if (!isLoading && profile?.id === 'carga') {
+      // Perfil "carga": só vê Gestão de Carga (case-insensitive)
+      if (profile?.id && String(profile.id).toLowerCase() === 'carga') {
         return item.id === 'gestao-carga';
       }
 
