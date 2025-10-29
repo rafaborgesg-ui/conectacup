@@ -151,7 +151,8 @@ export default function App() {
           setTimeout(() => toast.dismiss(tId), 10000);
         },
         onOfflineReady() {
-          toast.success('App pronto para uso offline');
+          // Não exibir mensagem ao usuário quando o app estiver pronto para uso offline
+          // (mantemos comportamento silencioso)
         },
       });
     } catch (e) {
