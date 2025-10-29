@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'src/supabase/functions/**'
+      - 'supabase/functions/**'
   workflow_dispatch:
 
 jobs:
