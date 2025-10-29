@@ -26,24 +26,45 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { PAGES } from './utils/permissions';
 
 // 🚀 LAZY LOADING - Componentes pesados carregados apenas quando necessários
-const Welcome = lazy(() => import('./components/Welcome'));
-const Dashboard = lazy(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
-const TireStockEntry = lazy(() => import('./components/TireStockEntry').then(m => ({ default: m.TireStockEntry })));
-const TireDiscard = lazy(() => import('./components/TireDiscard').then(m => ({ default: m.TireDiscard })));
-const DiscardReports = lazy(() => import('./components/DiscardReports').then(m => ({ default: m.DiscardReports })));
-const TireModelRegistration = lazy(() => import('./components/TireModelRegistration').then(m => ({ default: m.TireModelRegistration })));
-const ContainerRegistration = lazy(() => import('./components/ContainerRegistration').then(m => ({ default: m.ContainerRegistration })));
-const TireMovement = lazy(() => import('./components/TireMovement').then(m => ({ default: m.TireMovement })));
-const TireConsumption = lazy(() => import('./components/TireConsumption').then(m => ({ default: m.TireConsumption })));
-const TireStatusChange = lazy(() => import('./components/TireStatusChange').then(m => ({ default: m.TireStatusChange })));
-const StatusRegistration = lazy(() => import('./components/StatusRegistration').then(m => ({ default: m.StatusRegistration })));
-const ARCSDataUpdate = lazy(() => import('./components/ARCSDataUpdate').then(m => ({ default: m.ARCSDataUpdate })));
-const Reports = lazy(() => import('./components/Reports').then(m => ({ default: m.Reports })));
-const DataImport = lazy(() => import('./components/DataImport').then(m => ({ default: m.DataImport })));
-const StockAdjustment = lazy(() => import('./components/StockAdjustment').then(m => ({ default: m.StockAdjustment })));
-const UserManagement = lazy(() => import('./components/UserManagement').then(m => ({ default: m.UserManagement })));
-const MasterData = lazy(() => import('./components/MasterData').then(m => ({ default: m.MasterData })));
-const AccessProfileManagement = lazy(() => import('./components/AccessProfileManagement').then(m => ({ default: m.AccessProfileManagement })));
+// Protege contra erro de chunk desincronizado (cache antigo do HTML apontando para hash novo)
+function lazyWithRetry(factory: () => Promise<any>) {
+  return lazy(() =>
+    factory().catch((error: any) => {
+      const msg = String((error as any)?.message || error);
+      if (
+        msg.includes('Failed to fetch dynamically imported module') ||
+        msg.includes('Importing a module script failed') ||
+        msg.includes('Loading chunk')
+      ) {
+        console.warn('⚠️ Erro ao carregar chunk dinâmico. Forçando reload para sincronizar cache...');
+        // Hard refresh para alinhar index.html e assets com hash
+        window.location.reload();
+        // Retorna uma Promise que nunca resolve apenas para satisfazer o tipo até o reload
+        return new Promise(() => {});
+      }
+      throw error;
+    })
+  );
+}
+
+const Welcome = lazyWithRetry(() => import('./components/Welcome'));
+const Dashboard = lazyWithRetry(() => import('./components/Dashboard').then(m => ({ default: m.Dashboard })));
+const TireStockEntry = lazyWithRetry(() => import('./components/TireStockEntry').then(m => ({ default: m.TireStockEntry })));
+const TireDiscard = lazyWithRetry(() => import('./components/TireDiscard').then(m => ({ default: m.TireDiscard })));
+const DiscardReports = lazyWithRetry(() => import('./components/DiscardReports').then(m => ({ default: m.DiscardReports })));
+const TireModelRegistration = lazyWithRetry(() => import('./components/TireModelRegistration').then(m => ({ default: m.TireModelRegistration })));
+const ContainerRegistration = lazyWithRetry(() => import('./components/ContainerRegistration').then(m => ({ default: m.ContainerRegistration })));
+const TireMovement = lazyWithRetry(() => import('./components/TireMovement').then(m => ({ default: m.TireMovement })));
+const TireConsumption = lazyWithRetry(() => import('./components/TireConsumption').then(m => ({ default: m.TireConsumption })));
+const TireStatusChange = lazyWithRetry(() => import('./components/TireStatusChange').then(m => ({ default: m.TireStatusChange })));
+const StatusRegistration = lazyWithRetry(() => import('./components/StatusRegistration').then(m => ({ default: m.StatusRegistration })));
+const ARCSDataUpdate = lazyWithRetry(() => import('./components/ARCSDataUpdate').then(m => ({ default: m.ARCSDataUpdate })));
+const Reports = lazyWithRetry(() => import('./components/Reports').then(m => ({ default: m.Reports })));
+const DataImport = lazyWithRetry(() => import('./components/DataImport').then(m => ({ default: m.DataImport })));
+const StockAdjustment = lazyWithRetry(() => import('./components/StockAdjustment').then(m => ({ default: m.StockAdjustment })));
+const UserManagement = lazyWithRetry(() => import('./components/UserManagement').then(m => ({ default: m.UserManagement })));
+const MasterData = lazyWithRetry(() => import('./components/MasterData').then(m => ({ default: m.MasterData })));
+const AccessProfileManagement = lazyWithRetry(() => import('./components/AccessProfileManagement').then(m => ({ default: m.AccessProfileManagement })));
 
 // 🎯 Loading Fallback Component
 const ModuleLoadingFallback = memo(() => (
