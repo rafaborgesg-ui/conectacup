@@ -121,6 +121,8 @@ async function setupDevUser() {
 }
 
 export default function App() {
+  // Feature flag para desabilitar onboarding temporariamente
+  const ONBOARDING_ENABLED = false;
   const [currentModule, setCurrentModule] = useState('welcome');
   const [userRole, setUserRole] = useState<string>('operator');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -220,9 +222,11 @@ export default function App() {
           }));
           
           // Verifica onboarding
-          const onboardingCompleted = localStorage.getItem('onboarding-completed');
-          if (!onboardingCompleted) {
-            setShowOnboarding(true);
+          if (ONBOARDING_ENABLED) {
+            const onboardingCompleted = localStorage.getItem('onboarding-completed');
+            if (!onboardingCompleted) {
+              setShowOnboarding(true);
+            }
           }
         } else {
           console.log('ℹ️ Nenhuma sessão encontrada - mostrando login');
@@ -405,9 +409,11 @@ export default function App() {
               setIsLoading(false);
               
               // Verifica onboarding
-              const onboardingCompleted = localStorage.getItem('onboarding-completed');
-              if (!onboardingCompleted) {
-                setShowOnboarding(true);
+              if (ONBOARDING_ENABLED) {
+                const onboardingCompleted = localStorage.getItem('onboarding-completed');
+                if (!onboardingCompleted) {
+                  setShowOnboarding(true);
+                }
               }
               
               // ✅ CRÍTICO: Limpa URL OAuth após processamento
@@ -440,9 +446,11 @@ export default function App() {
               profileId, // ✅ Adiciona profileId para sistema RBAC
             }));
             
-            const onboardingCompleted = localStorage.getItem('onboarding-completed');
-            if (!onboardingCompleted) {
-              setShowOnboarding(true);
+            if (ONBOARDING_ENABLED) {
+              const onboardingCompleted = localStorage.getItem('onboarding-completed');
+              if (!onboardingCompleted) {
+                setShowOnboarding(true);
+              }
             }
             
             // Limpa URL OAuth
@@ -756,11 +764,11 @@ export default function App() {
       
       <PWAInstallPrompt />
       <QuickTips />
-      <OnboardingChecklist />
+  {ONBOARDING_ENABLED && <OnboardingChecklist />}
       <Toaster />
       
       {/* Onboarding Modal */}
-      {showOnboarding && (
+      {ONBOARDING_ENABLED && showOnboarding && (
         <Onboarding onComplete={() => setShowOnboarding(false)} />
       )}
       </div>

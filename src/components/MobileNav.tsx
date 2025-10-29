@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { Home, Package, UserCircle, Trash2, Archive, FileText, Settings, LogOut, Smartphone, Monitor, Globe, MapPin, ChevronDown, ClipboardList } from 'lucide-react';
+import { 
+  LayoutDashboard, Package, CircleDot, Box, BarChart3, 
+  ArrowRightLeft, Trash2, ChevronDown, FileText, UserCircle, 
+  Truck, Smartphone, Monitor, Globe, MapPin, Shield, Settings, LogOut, ClipboardList, Database 
+} from 'lucide-react';
 import { Separator } from './ui/separator';
 import porscheCarreraCupLogo from 'figma:asset/714dd59c6efd84795d4e42fadd6c600fd2c510ee.png';
 import { usePermissions } from '../utils/usePermissions';
@@ -14,72 +18,162 @@ interface MobileNavProps {
 
 export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }: MobileNavProps) {
   const [open, setOpen] = useState(false);
-  const [expandedNacional, setExpandedNacional] = useState(false);
-  const { hasPageAccess, profile } = usePermissions();
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
+  const { hasPageAccess, profile, isLoading } = usePermissions();
 
-  // Mapeamento de IDs para páginas
+  // Mapeamento de IDs de menu para páginas (mesmo do Sidebar)
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
+    'gestao-carga': 'GESTAO_CARGA',
     'dashboard': 'DASHBOARD',
     'tire-stock': 'STOCK_ENTRY',
-    'tire-consumption': 'TIRE_CONSUMPTION',
     'tire-movement': 'TIRE_MOVEMENT',
+    'tire-consumption': 'TIRE_CONSUMPTION',
     'tire-status-change': 'TIRE_STATUS_CHANGE',
+    'arcs-data-update': 'ARCS_UPDATE',
     'tire-discard-entry': 'TIRE_DISCARD',
-    'reports': 'REPORTS',
-    'stock-adjustment': 'STOCK_ADJUSTMENT',
+    'tire-discard-reports': 'DISCARD_REPORTS',
     'tire-models': 'TIRE_MODEL',
     'tire-status': 'STATUS_REGISTRATION',
     'containers': 'CONTAINER',
-    'master-data': 'MASTER_DATA',
+    'reports': 'REPORTS',
     'data-import': 'DATA_IMPORT',
+    'stock-adjustment': 'STOCK_ADJUSTMENT',
     'users': 'USER_MANAGEMENT',
     'access-profiles': 'USER_MANAGEMENT',
+    'master-data': 'MASTER_DATA',
   };
 
-  // Filtra itens baseado em permissões
-  const filterItems = (items: any[]) => {
+  // Estrutura do menu (espelho do Sidebar)
+  const menuItems = [
+    { 
+      id: 'gestao-carga', 
+      label: 'Gestão de Carga', 
+      icon: ClipboardList, 
+      isMain: true,
+      externalUrl: 'https://script.google.com/a/porschegt3cup.com.br/macros/s/AKfycbzs06M_vQcA34boc3ciyd9LzUzsYN3aNIXGZd-SfCsygtWAv07sc8K3ngt2UE0-cr9C/exec'
+    },
+    { 
+      id: 'solicitacao-frete', 
+      label: 'Solicitação de frete', 
+      icon: Truck, 
+      isMain: true,
+      subItems: [
+        { 
+          id: 'frete-nacional', 
+          label: 'Nacional', 
+          icon: MapPin,
+          subItems: [
+            { id: 'frete-smartphone', label: 'Smartphone', icon: Smartphone, externalUrl: 'https://sites.google.com/view/motoristacup/in%C3%ADcio' },
+            { id: 'frete-web', label: 'Web', icon: Monitor, externalUrl: 'https://script.google.com/macros/s/AKfycbxG8e_GeG9vOLBtnkv06Su-XjNGl_a2xS0R9swdyjjQZo_dnmQkegBiV3l1Z-FnzEhL/exec' },
+          ]
+        },
+        { id: 'frete-internacional', label: 'Internacional', icon: Globe, externalUrl: 'https://docs.google.com/spreadsheets/d/1-z_PLPueulEfPa7J3Owhg_mfjFKHF3nLDvRVVtyeUvQ/edit?usp=sharing' },
+      ]
+    },
+    { 
+      id: 'pneus', 
+      label: 'Pneus', 
+      icon: Package, 
+      isMain: true,
+      subItems: [
+        { id: 'tire-stock', label: 'Entrada de Estoque', icon: Package },
+        { id: 'tire-movement', label: 'Movimentação de Pneus', icon: ArrowRightLeft },
+        { id: 'tire-status-change', label: 'Mudar Status', icon: CircleDot },
+        { id: 'arcs-data-update', label: 'Atualizar Base ARCS', icon: Database, adminOnly: true },
+        { id: 'tire-discard-entry', label: 'Registro de Descarte', icon: Trash2 },
+        { id: 'reports', label: 'Relatórios & Histórico', icon: BarChart3 },
+      ]
+    },
+    { 
+      id: 'cadastro', 
+      label: 'Cadastro', 
+      icon: Settings, 
+      isMain: true,
+      adminOnly: true,
+      subItems: [
+        { id: 'tire-models', label: 'Cadastro de Modelos', icon: CircleDot },
+        { id: 'tire-status', label: 'Cadastro de Status', icon: CircleDot },
+        { id: 'containers', label: 'Cadastro de Contêineres', icon: Box },
+        { id: 'master-data', label: 'Master Data', icon: Database },
+      ]
+    },
+    { 
+      id: 'administracao', 
+      label: 'Administração', 
+      icon: Shield, 
+      isMain: true,
+      adminOnly: true,
+      subItems: [
+        { id: 'users', label: 'Gerenciar Usuários', icon: Shield },
+        { id: 'access-profiles', label: 'Perfis de Acesso', icon: UserCircle },
+        { id: 'stock-adjustment', label: 'Ajuste de Estoque', icon: Settings },
+        { 
+          id: 'em-desenvolvimento', 
+          label: 'Em Desenvolvimento', 
+          icon: FileText,
+          subItems: [
+            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { id: 'tire-consumption', label: 'Transferir para Piloto', icon: UserCircle },
+            { id: 'data-import', label: 'Importação de Dados', icon: Database },
+            { id: 'tire-discard-reports', label: 'Relatórios & Histórico de Descarte', icon: FileText },
+          ]
+        },
+      ]
+    },
+  ];
+
+  // Filtra itens do menu baseado em permissões (espelho do Sidebar)
+  const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
-      // Links externos sempre visíveis
-      if (item.externalUrl) return true;
-      
-      // Verifica permissão
+      // Perfil "carga": só vê Gestão de Carga
+      if (!isLoading && profile?.id === 'carga') {
+        return item.id === 'gestao-carga';
+      }
+
+      // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
+      if (item.externalUrl) {
+        const pageKey = menuToPageMap[item.id];
+        if (pageKey) {
+          return hasPageAccess(PAGES[pageKey]);
+        }
+        return true;
+      }
+
+      // Filtra recursivamente subitens
+      if (item.subItems) {
+        const filteredSubItems = filterMenuItems(item.subItems);
+        if (filteredSubItems.length === 0) return false;
+        item.subItems = filteredSubItems;
+        return true;
+      }
+
+      // Verifica acesso à página
       const pageKey = menuToPageMap[item.id];
       if (pageKey) {
         return hasPageAccess(PAGES[pageKey]);
       }
-      
+
       return true;
     });
   };
 
-  const allMenuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: Home },
-    { id: 'tire-stock', label: 'Entrada de Estoque', icon: Package },
-    { id: 'tire-consumption', label: 'Transferir para Piloto', icon: UserCircle },
-    { id: 'tire-movement', label: 'Movimentação', icon: Archive },
-    { id: 'tire-status-change', label: 'Mudar Status', icon: Settings },
-    { id: 'tire-discard-entry', label: 'Descarte', icon: Trash2 },
-    { id: 'reports', label: 'Relatórios', icon: FileText },
-  ];
+  const filteredMenuItems = filterMenuItems(menuItems);
 
-  const allAdminItems = [
-    { id: 'stock-adjustment', label: 'Ajuste de Estoque', icon: Settings },
-    { id: 'tire-models', label: 'Modelos de Pneus', icon: Package },
-    { id: 'tire-status', label: 'Status de Pneus', icon: Settings },
-    { id: 'containers', label: 'Contêineres', icon: Archive },
-    { id: 'master-data', label: 'Master Data', icon: Settings },
-    { id: 'data-import', label: 'Importação de Dados', icon: FileText },
-    { id: 'users', label: 'Gerenciar Usuários', icon: Settings },
-    { id: 'access-profiles', label: 'Perfis de Acesso', icon: UserCircle },
-  ];
+  const toggleSubmenu = (itemId: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
 
-  const menuItems = filterItems(allMenuItems);
-  const adminItems = filterItems(allAdminItems);
-
-  const freteNacionalItems = [
-    { id: 'frete-smartphone', label: 'Smartphone', icon: Smartphone, externalUrl: 'https://sites.google.com/view/motoristacup/in%C3%ADcio' },
-    { id: 'frete-web', label: 'Web', icon: Monitor, externalUrl: 'https://script.google.com/macros/s/AKfycbxG8e_GeG9vOLBtnkv06Su-XjNGl_a2xS0R9swdyjjQZo_dnmQkegBiV3l1Z-FnzEhL/exec' },
-  ];
+  const isItemActive = (item: any): boolean => {
+    if (currentModule === item.id) return true;
+    if (item.subItems) {
+      return item.subItems.some((sub: any) => isItemActive(sub));
+    }
+    return false;
+  };
 
   const handleItemClick = (moduleId: string, externalUrl?: string) => {
     if (externalUrl) {
@@ -135,130 +229,119 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
           {/* Conteúdo Scrollável com Scroll Indicators */}
           <div className="flex-1 overflow-y-auto mobile-nav-scroll">
             <nav className="px-4 py-4 space-y-1">
-              {/* Gestão de Carga */}
-              <div className="mobile-nav-section-title">
-                Gestão de Carga
-              </div>
-              
-              <button
-                onClick={() => handleItemClick('gestao-carga', 'https://script.google.com/a/porschegt3cup.com.br/macros/s/AKfycbzs06M_vQcA34boc3ciyd9LzUzsYN3aNIXGZd-SfCsygtWAv07sc8K3ngt2UE0-cr9C/exec')}
-                className="mobile-nav-item"
-              >
-                <ClipboardList className="w-5 h-5 flex-shrink-0" />
-                <span className="flex-1 text-left">Gestão de Carga</span>
-              </button>
+              {/* Lista de itens (paridade com Sidebar) */}
+              <ul className="space-y-1">
+                {filteredMenuItems.map((item) => {
+                  const Icon = item.icon;
+                  const hasSubItems = item.subItems && item.subItems.length > 0;
+                  const isExpanded = expandedMenus.includes(item.id);
+                  const isDirectlyActive = currentModule === item.id;
+                  const isExternalLink = item.externalUrl;
 
-              <Separator className="my-4 bg-gray-200" />
+                  // Esconde itens adminOnly se não for admin
+                  if (item.adminOnly && userRole !== 'admin') {
+                    return null;
+                  }
 
-              {/* As seções abaixo ficam ocultas para o perfil 'carga' */}
-              {profile?.id !== 'carga' && (
-                <>
-                  {/* Solicitação de Frete */}
-                  <div className="mobile-nav-section-title">
-                    Solicitação de Frete
-                  </div>
-                  
-                  {/* Nacional (expansível) com Animação */}
-                  <button
-                    onClick={() => setExpandedNacional(!expandedNacional)}
-                    className="mobile-nav-item"
-                  >
-                    <MapPin className="w-5 h-5 flex-shrink-0" />
-                    <span className="flex-1 text-left">Nacional</span>
-                    <ChevronDown 
-                      className={`w-5 h-5 transition-transform duration-300 ${expandedNacional ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                  
-                  {/* Submenu com Collapse Animation */}
-                  <div 
-                    className={`mobile-nav-submenu ${expandedNacional ? 'open' : ''}`}
-                  >
-                    {freteNacionalItems.map((item) => {
-                      const Icon = item.icon;
-                      
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => handleItemClick(item.id, item.externalUrl)}
-                          className="mobile-nav-subitem"
-                        >
-                          <Icon className="w-4 h-4 flex-shrink-0" />
-                          <span>{item.label}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  
-                  {/* Internacional */}
-                  <button
-                    onClick={() => handleItemClick('frete-internacional', 'https://docs.google.com/spreadsheets/d/1-z_PLPueulEfPa7J3Owhg_mfjFKHF3nLDvRVVtyeUvQ/edit?usp=sharing')}
-                    className="mobile-nav-item"
-                  >
-                    <Globe className="w-5 h-5 flex-shrink-0" />
-                    <span className="flex-1 text-left">Internacional</span>
-                  </button>
-
-                  <Separator className="my-4 bg-gray-200" />
-                </>
-              )}
-
-              {/* Menu Pneus - oculto para perfil 'carga' */}
-              {profile?.id !== 'carga' && (
-                <>
-                  <div className="mobile-nav-section-title">
-                    Pneus
-                  </div>
-                  
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentModule === item.id;
-                    
-                    return (
+                  return (
+                    <li key={item.id}>
                       <button
-                        key={item.id}
-                        onClick={() => handleItemClick(item.id)}
-                        className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                        onClick={() => {
+                          if (isExternalLink) {
+                            handleItemClick(item.id, item.externalUrl);
+                          } else if (hasSubItems) {
+                            toggleSubmenu(item.id);
+                          } else {
+                            handleItemClick(item.id);
+                          }
+                        }}
+                        className={`mobile-nav-item ${isDirectlyActive && !hasSubItems ? 'active' : ''}`}
                       >
                         <Icon className="w-5 h-5 flex-shrink-0" />
                         <span className="flex-1 text-left">{item.label}</span>
-                        {isActive && (
-                          <div className="mobile-nav-active-indicator" />
+                        {hasSubItems && (
+                          <ChevronDown 
+                            className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-0' : '-rotate-90'}`}
+                          />
                         )}
                       </button>
-                    );
-                  })}
-                </>
-              )}
 
-              {profile?.id !== 'carga' && adminItems.length > 0 && (
-                <>
-                  <Separator className="my-4 bg-gray-200" />
-                  
-                  <div className="mobile-nav-section-title">
-                    Administração
-                  </div>
-                  
-                  {adminItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = currentModule === item.id;
-                    
-                    return (
-                      <button
-                        key={item.id}
-                        onClick={() => handleItemClick(item.id)}
-                        className={`mobile-nav-item ${isActive ? 'active' : ''}`}
-                      >
-                        <Icon className="w-5 h-5 flex-shrink-0" />
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {isActive && (
-                          <div className="mobile-nav-active-indicator" />
-                        )}
-                      </button>
-                    );
-                  })}
-                </>
-              )}
+                      {/* Subitens recursivos */}
+                      {hasSubItems && (
+                        <div className={`mobile-nav-submenu ${isExpanded ? 'open' : ''}`}>
+                          <ul className="space-y-1">
+                            {item.subItems.map((subItem: any) => {
+                              const SubIcon = subItem.icon;
+                              const subHasSub = subItem.subItems && subItem.subItems.length > 0;
+                              const subExpanded = expandedMenus.includes(subItem.id);
+                              const subActive = currentModule === subItem.id;
+                              const subExternal = subItem.externalUrl;
+
+                              if (subItem.adminOnly && userRole !== 'admin') {
+                                return null;
+                              }
+
+                              return (
+                                <li key={subItem.id}>
+                                  <button
+                                    onClick={() => {
+                                      if (subExternal) {
+                                        handleItemClick(subItem.id, subItem.externalUrl);
+                                      } else if (subHasSub) {
+                                        toggleSubmenu(subItem.id);
+                                      } else {
+                                        handleItemClick(subItem.id);
+                                      }
+                                    }}
+                                    className={`mobile-nav-subitem ${subActive && !subHasSub ? 'active' : ''}`}
+                                  >
+                                    <SubIcon className="w-4 h-4 flex-shrink-0" />
+                                    <span>{subItem.label}</span>
+                                    {subHasSub && (
+                                      <ChevronDown 
+                                        className={`w-4 h-4 transition-transform duration-300 ${subExpanded ? 'rotate-0' : '-rotate-90'}`}
+                                      />
+                                    )}
+                                  </button>
+
+                                  {/* Terceiro nível */}
+                                  {subHasSub && (
+                                    <div className={`mobile-nav-submenu ${subExpanded ? 'open' : ''}`}>
+                                      <ul className="space-y-1">
+                                        {subItem.subItems.map((third: any) => {
+                                          const ThirdIcon = third.icon;
+                                          const thirdActive = currentModule === third.id;
+                                          const thirdExternal = third.externalUrl;
+
+                                          if (third.adminOnly && userRole !== 'admin') {
+                                            return null;
+                                          }
+
+                                          return (
+                                            <li key={third.id}>
+                                              <button
+                                                onClick={() => handleItemClick(third.id, thirdExternal)}
+                                                className={`mobile-nav-subitem ${thirdActive ? 'active' : ''}`}
+                                              >
+                                                <ThirdIcon className="w-4 h-4 flex-shrink-0" />
+                                                <span>{third.label}</span>
+                                              </button>
+                                            </li>
+                                          );
+                                        })}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </nav>
           </div>
 
