@@ -103,51 +103,6 @@ export interface AccessProfile {
   updatedAt: string;
 }
 
-// Overrides locais para permitir edição de perfis do sistema sem alterar o backend
-type AccessProfileOverride = Partial<Pick<AccessProfile, 'name' | 'description' | 'pages' | 'features'>>;
-
-const PROFILE_OVERRIDES_KEY = 'porsche-cup-profiles-overrides';
-
-export function getProfileOverrides(): Record<string, AccessProfileOverride> {
-  try {
-    const str = localStorage.getItem(PROFILE_OVERRIDES_KEY);
-    return str ? JSON.parse(str) : {};
-  } catch {
-    return {};
-  }
-}
-
-export function saveProfileOverrides(overrides: Record<string, AccessProfileOverride>): void {
-  try {
-    localStorage.setItem(PROFILE_OVERRIDES_KEY, JSON.stringify(overrides));
-  } catch (e) {
-    console.error('Erro ao salvar overrides de perfis:', e);
-  }
-}
-
-export function applyOverridesToProfiles(profiles: AccessProfile[]): AccessProfile[] {
-  try {
-    const overrides = getProfileOverrides();
-    if (!overrides || Object.keys(overrides).length === 0) return profiles;
-    const merged = profiles.map((p) => {
-      const ov = overrides[p.id];
-      if (!ov) return p;
-      return {
-        ...p,
-        name: ov.name ?? p.name,
-        description: ov.description ?? p.description,
-        pages: (ov.pages ?? p.pages) as PageKey[],
-        features: (ov.features ?? p.features) as FeatureKey[],
-        updatedAt: new Date().toISOString(),
-      };
-    });
-    return merged;
-  } catch (e) {
-    console.warn('Falha ao aplicar overrides de perfis:', e);
-    return profiles;
-  }
-}
-
 /**
  * Perfis Padrão do Sistema
  */
@@ -476,12 +431,11 @@ async function loadProfilesFromSupabase(): Promise<AccessProfile[]> {
       throw new Error(result.error || 'Erro ao carregar perfis');
     }
     
-  // Aplica overrides locais antes de salvar no cache
-  const merged = applyOverridesToProfiles(result.data);
-  localStorage.setItem('porsche-cup-profiles', JSON.stringify(merged));
-    
-  console.log(`✅ ${result.data.length} perfis carregados do Supabase (overrides aplicados: ${Object.keys(getProfileOverrides()).length})`);
-  return merged;
+  // Atualiza cache local com dados do Supabase
+  localStorage.setItem('porsche-cup-profiles', JSON.stringify(result.data));
+
+  console.log(`✅ ${result.data.length} perfis carregados do Supabase`);
+  return result.data;
     
   } catch (error) {
     console.error('❌ Erro ao carregar perfis do Supabase:', error);
@@ -490,17 +444,16 @@ async function loadProfilesFromSupabase(): Promise<AccessProfile[]> {
     const profilesStr = localStorage.getItem('porsche-cup-profiles');
     if (profilesStr) {
       console.log('ℹ️ Usando perfis do cache local');
-      const cached: AccessProfile[] = JSON.parse(profilesStr);
-      return applyOverridesToProfiles(cached);
+      return JSON.parse(profilesStr);
     }
     
     // Último fallback: perfis padrão
     console.log('ℹ️ Usando perfis padrão embutidos');
-    return applyOverridesToProfiles(DEFAULT_PROFILES.map(p => ({
+    return DEFAULT_PROFILES.map(p => ({
       ...p,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    })));
+    }));
   }
 }
 
@@ -531,6 +484,24 @@ export async function getCurrentUserProfileAsync(): Promise<AccessProfile | null
     // Busca perfil específico
     let profile = profiles.find(p => p.id === profileId);
     
+    // Fallback adicional: se não encontrar por ID, tenta por NOME (case-insensitive)
+    if (!profile) {
+      const byName = profiles.find(p => p.name.toLowerCase() === String(profileId).toLowerCase());
+      if (byName) {
+        console.warn(`ℹ️ Perfil não encontrado por ID, mas encontrado por NOME: ${byName.name} → usando id ${byName.id}`);
+        profile = byName;
+        // Atualiza usuário local para usar o ID correto
+        try {
+          const updatedUser = { ...user, profileId: byName.id };
+          localStorage.setItem('porsche-cup-user', JSON.stringify(updatedUser));
+          console.log(`💾 ProfileId atualizado localmente para o id real do perfil (${byName.id})`);
+          console.warn(`⚠️ IMPORTANTE: Atualize o usuário no Supabase para usar o profileId "${byName.id}" (id real), não o nome do perfil.`);
+        } catch (err) {
+          console.error('Erro ao atualizar usuário localmente:', err);
+        }
+      }
+    }
+
     if (profile) {
       console.log(`✅ Perfil encontrado: ${profile.name} (${profile.id})`);
       console.log(`📋 Páginas permitidas:`, profile.pages);
