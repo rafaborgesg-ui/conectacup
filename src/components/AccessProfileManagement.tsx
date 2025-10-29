@@ -263,13 +263,6 @@ export function AccessProfileManagement() {
   };
 
   const handleEdit = (profile: AccessProfile) => {
-    if (profile.isSystem) {
-      toast.error('Perfil do sistema', {
-        description: 'Perfis do sistema não podem ser editados. Clone o perfil para criar uma cópia editável.',
-      });
-      return;
-    }
-
     setFormData({
       name: profile.name,
       description: profile.description,
@@ -649,26 +642,26 @@ export function AccessProfileManagement() {
                         >
                           <Copy size={16} />
                         </Button>
+                        {/* Editar disponível para todos os perfis (inclui sistema) */}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(profile)}
+                          title="Editar perfil"
+                        >
+                          <Edit2 size={16} />
+                        </Button>
+                        {/* Excluir permanece bloqueado para perfis do sistema */}
                         {!profile.isSystem && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEdit(profile)}
-                              title="Editar perfil"
-                            >
-                              <Edit2 size={16} />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDeleteClick(profile)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Excluir perfil"
-                            >
-                              <Trash2 size={16} />
-                            </Button>
-                          </>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDeleteClick(profile)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            title="Excluir perfil"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
                         )}
                       </div>
                     </div>
