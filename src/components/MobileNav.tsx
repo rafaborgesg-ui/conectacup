@@ -15,7 +15,7 @@ interface MobileNavProps {
 export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const [expandedNacional, setExpandedNacional] = useState(false);
-  const { hasPageAccess } = usePermissions();
+  const { hasPageAccess, profile } = usePermissions();
 
   // Mapeamento de IDs para páginas
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
@@ -150,79 +150,88 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
 
               <Separator className="my-4 bg-gray-200" />
 
-              {/* Solicitação de Frete */}
-              <div className="mobile-nav-section-title">
-                Solicitação de Frete
-              </div>
-              
-              {/* Nacional (expansível) com Animação */}
-              <button
-                onClick={() => setExpandedNacional(!expandedNacional)}
-                className="mobile-nav-item"
-              >
-                <MapPin className="w-5 h-5 flex-shrink-0" />
-                <span className="flex-1 text-left">Nacional</span>
-                <ChevronDown 
-                  className={`w-5 h-5 transition-transform duration-300 ${expandedNacional ? 'rotate-180' : ''}`}
-                />
-              </button>
-              
-              {/* Submenu com Collapse Animation */}
-              <div 
-                className={`mobile-nav-submenu ${expandedNacional ? 'open' : ''}`}
-              >
-                {freteNacionalItems.map((item) => {
-                  const Icon = item.icon;
+              {/* As seções abaixo ficam ocultas para o perfil 'carga' */}
+              {profile?.id !== 'carga' && (
+                <>
+                  {/* Solicitação de Frete */}
+                  <div className="mobile-nav-section-title">
+                    Solicitação de Frete
+                  </div>
                   
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemClick(item.id, item.externalUrl)}
-                      className="mobile-nav-subitem"
-                    >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
-                      <span>{item.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              
-              {/* Internacional */}
-              <button
-                onClick={() => handleItemClick('frete-internacional', 'https://docs.google.com/spreadsheets/d/1-z_PLPueulEfPa7J3Owhg_mfjFKHF3nLDvRVVtyeUvQ/edit?usp=sharing')}
-                className="mobile-nav-item"
-              >
-                <Globe className="w-5 h-5 flex-shrink-0" />
-                <span className="flex-1 text-left">Internacional</span>
-              </button>
-
-              <Separator className="my-4 bg-gray-200" />
-
-              {/* Menu Pneus */}
-              <div className="mobile-nav-section-title">
-                Pneus
-              </div>
-              
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = currentModule === item.id;
-                
-                return (
+                  {/* Nacional (expansível) com Animação */}
                   <button
-                    key={item.id}
-                    onClick={() => handleItemClick(item.id)}
-                    className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                    onClick={() => setExpandedNacional(!expandedNacional)}
+                    className="mobile-nav-item"
                   >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="flex-1 text-left">{item.label}</span>
-                    {isActive && (
-                      <div className="mobile-nav-active-indicator" />
-                    )}
+                    <MapPin className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1 text-left">Nacional</span>
+                    <ChevronDown 
+                      className={`w-5 h-5 transition-transform duration-300 ${expandedNacional ? 'rotate-180' : ''}`}
+                    />
                   </button>
-                );
-              })}
+                  
+                  {/* Submenu com Collapse Animation */}
+                  <div 
+                    className={`mobile-nav-submenu ${expandedNacional ? 'open' : ''}`}
+                  >
+                    {freteNacionalItems.map((item) => {
+                      const Icon = item.icon;
+                      
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => handleItemClick(item.id, item.externalUrl)}
+                          className="mobile-nav-subitem"
+                        >
+                          <Icon className="w-4 h-4 flex-shrink-0" />
+                          <span>{item.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Internacional */}
+                  <button
+                    onClick={() => handleItemClick('frete-internacional', 'https://docs.google.com/spreadsheets/d/1-z_PLPueulEfPa7J3Owhg_mfjFKHF3nLDvRVVtyeUvQ/edit?usp=sharing')}
+                    className="mobile-nav-item"
+                  >
+                    <Globe className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1 text-left">Internacional</span>
+                  </button>
 
-              {adminItems.length > 0 && (
+                  <Separator className="my-4 bg-gray-200" />
+                </>
+              )}
+
+              {/* Menu Pneus - oculto para perfil 'carga' */}
+              {profile?.id !== 'carga' && (
+                <>
+                  <div className="mobile-nav-section-title">
+                    Pneus
+                  </div>
+                  
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentModule === item.id;
+                    
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleItemClick(item.id)}
+                        className={`mobile-nav-item ${isActive ? 'active' : ''}`}
+                      >
+                        <Icon className="w-5 h-5 flex-shrink-0" />
+                        <span className="flex-1 text-left">{item.label}</span>
+                        {isActive && (
+                          <div className="mobile-nav-active-indicator" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+
+              {profile?.id !== 'carga' && adminItems.length > 0 && (
                 <>
                   <Separator className="my-4 bg-gray-200" />
                   

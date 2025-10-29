@@ -25,6 +25,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
 
   // Mapeamento de IDs de menu para páginas do sistema de permissões
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
+    'gestao-carga': 'GESTAO_CARGA',
     'dashboard': 'DASHBOARD',
     'tire-stock': 'STOCK_ENTRY',
     'tire-movement': 'TIRE_MOVEMENT',
@@ -47,8 +48,19 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
   // Filtra itens do menu baseado em permissões
   const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
-      // Links externos sempre são mostrados
-      if (item.externalUrl) return true;
+      // Se perfil "carga", exibe apenas o item específico "gestao-carga"
+      if (!isLoading && profile?.id === 'carga') {
+        return item.id === 'gestao-carga';
+      }
+
+      // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
+      if (item.externalUrl) {
+        const pageKey = menuToPageMap[item.id];
+        if (pageKey) {
+          return hasPageAccess(PAGES[pageKey]);
+        }
+        return true;
+      }
       
       // Se tem subItems, filtra recursivamente
       if (item.subItems) {

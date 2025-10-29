@@ -26,6 +26,8 @@ export const PAGES = {
   TIRE_CONSUMPTION: 'tire_consumption',
   DATA_IMPORT: 'data_import',
   ARCS_UPDATE: 'arcs_update',
+  // Menu externo controlado por RBAC
+  GESTAO_CARGA: 'gestao_carga',
 } as const;
 
 export type PageKey = typeof PAGES[keyof typeof PAGES];
@@ -191,6 +193,17 @@ export const DEFAULT_PROFILES: Omit<AccessProfile, 'createdAt' | 'updatedAt'>[] 
       FEATURES.DISCARD_VIEW,
     ],
   },
+  {
+    id: 'carga',
+    name: 'Carga',
+    description: 'Acesso exclusivo ao menu externo "Gestão de Carga"',
+    isDefault: false,
+    isSystem: true,
+    pages: [
+      PAGES.GESTAO_CARGA,
+    ],
+    features: [],
+  },
 ];
 
 /**
@@ -213,6 +226,7 @@ export const PAGE_LABELS: Record<PageKey, string> = {
   [PAGES.TIRE_CONSUMPTION]: 'Consumo de Pneus',
   [PAGES.DATA_IMPORT]: 'Importação de Dados',
   [PAGES.ARCS_UPDATE]: 'Atualização ARCS',
+  [PAGES.GESTAO_CARGA]: 'Gestão de Carga',
 };
 
 /**
@@ -267,6 +281,7 @@ export const PAGE_CATEGORIES = {
     PAGES.STOCK_ENTRY,
     PAGES.TIRE_MODEL,
     PAGES.CONTAINER,
+    PAGES.GESTAO_CARGA,
   ],
   'Movimentação': [
     PAGES.STOCK_ADJUSTMENT,
