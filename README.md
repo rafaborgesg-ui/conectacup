@@ -1,11 +1,17 @@
+# conectacup
 
-  # Porsche Cup
+Frontend for Conecta Cup built with Vite + React + TypeScript, deployed on Vercel.
 
-  This is a code bundle for Porsche Cup. The original project is available at https://www.figma.com/design/1gXPOBwAysRvWk6EAkqkpQ/Porsche-Cup.
+## Getting started
 
-  ## Running the code
+- Install dependencies: `npm i`
+- Start dev server: `npm run dev`
 
-  Run `npm i` to install the dependencies.
+## Build and deploy
 
-  Run `npm run dev` to start the development server.
-  
+- Production build: `npm run build` (outputs to `build/`)
+- Vercel uses `vercel.json` with `outputDirectory: "build"`
+
+## Authentication
+
+- Supabase Auth with Google OAuth. The app handles INITIAL_SESSION correctly after OAuth redirect.

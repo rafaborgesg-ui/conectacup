@@ -261,12 +261,18 @@ export default function App() {
         return;
       }
       
-      // 🎯 FILTRAGEM INTELIGENTE: Ignora eventos automáticos do Supabase
-      const EVENTOS_IGNORADOS = ['INITIAL_SESSION', 'TOKEN_REFRESHED', 'USER_UPDATED'];
-      
+      // 🛠️ TRATAMENTO ESPECIAL: Após OAuth, o Supabase pode disparar INITIAL_SESSION
+      // Se houver sessão, tratamos como SIGNED_IN para concluir o fluxo
+      if (event === 'INITIAL_SESSION' && session?.user) {
+        console.log('🔐 INITIAL_SESSION com sessão detectada - tratando como SIGNED_IN');
+        event = 'SIGNED_IN';
+      }
+
+      // 🎯 FILTRAGEM INTELIGENTE: Ignora apenas eventos realmente automáticos e não críticos
+      const EVENTOS_IGNORADOS = ['TOKEN_REFRESHED', 'USER_UPDATED'];
       if (EVENTOS_IGNORADOS.includes(event)) {
         console.log(`ℹ️ Evento ${event} ignorado (automático do Supabase)`);
-        return; // NÃO conta como mudança de auth
+        return;
       }
       
       // 🚫 ANTI-DUPLICAÇÃO: Ignora eventos duplicados consecutivos
@@ -302,7 +308,7 @@ export default function App() {
         return; // Ignora se está em loop
       }
       
-      if (event === 'SIGNED_IN' && session && !isProcessingOAuth.current) {
+  if (event === 'SIGNED_IN' && session && !isProcessingOAuth.current) {
         console.log('✅ SIGNED_IN detectado - processando...');
         isProcessingOAuth.current = true;
         
