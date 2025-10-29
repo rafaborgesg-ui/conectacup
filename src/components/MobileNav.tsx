@@ -24,6 +24,7 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
   // Mapeamento de IDs de menu para páginas (mesmo do Sidebar)
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
     'gestao-carga': 'GESTAO_CARGA',
+    'solicitacao-frete': 'SOLICITACAO_FRETE',
     'dashboard': 'DASHBOARD',
     'tire-stock': 'STOCK_ENTRY',
     'tire-movement': 'TIRE_MOVEMENT',
@@ -125,10 +126,7 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
   // Filtra itens do menu baseado em permissões (espelho do Sidebar)
   const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
-      // Perfil "carga": só vê Gestão de Carga (case-insensitive)
-      if (profile?.id && String(profile.id).toLowerCase() === 'carga') {
-        return item.id === 'gestao-carga';
-      }
+      // Removido hardcode do perfil "carga" — RBAC controla via PAGES
 
       // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
       if (item.externalUrl) {
@@ -160,9 +158,9 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
   const filteredMenuItems = filterMenuItems(menuItems);
 
   const toggleSubmenu = (itemId: string) => {
-    setExpandedMenus(prev => 
+    setExpandedMenus((prev: string[]) => 
       prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
+        ? prev.filter((id: string) => id !== itemId)
         : [...prev, itemId]
     );
   };

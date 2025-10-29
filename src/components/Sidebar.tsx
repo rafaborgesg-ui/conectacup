@@ -26,6 +26,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
   // Mapeamento de IDs de menu para páginas do sistema de permissões
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
     'gestao-carga': 'GESTAO_CARGA',
+    'solicitacao-frete': 'SOLICITACAO_FRETE',
     'dashboard': 'DASHBOARD',
     'tire-stock': 'STOCK_ENTRY',
     'tire-movement': 'TIRE_MOVEMENT',
@@ -48,10 +49,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
   // Filtra itens do menu baseado em permissões
   const filterMenuItems = (items: any[]): any[] => {
     return items.filter(item => {
-      // Se perfil "carga", exibe apenas o item específico "gestao-carga"
-      if (profile?.id && String(profile.id).toLowerCase() === 'carga') {
-        return item.id === 'gestao-carga';
-      }
+      // Removido hardcode do perfil "carga" — RBAC controla visibilidade via PAGES
 
       // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
       if (item.externalUrl) {
@@ -104,7 +102,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     const freteModules = ['frete-smartphone', 'frete-web', 'frete-internacional'];
     
     if (pneusModules.includes(currentModule)) {
-      setExpandedMenus(prev => {
+  setExpandedMenus((prev: string[]) => {
         if (!prev.includes('pneus')) {
           return [...prev, 'pneus'];
         }
@@ -113,7 +111,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     }
     
     if (cadastroModules.includes(currentModule)) {
-      setExpandedMenus(prev => {
+  setExpandedMenus((prev: string[]) => {
         if (!prev.includes('cadastro')) {
           return [...prev, 'cadastro'];
         }
@@ -122,7 +120,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     }
     
     if (administracaoModules.includes(currentModule)) {
-      setExpandedMenus(prev => {
+  setExpandedMenus((prev: string[]) => {
         if (!prev.includes('administracao')) {
           return [...prev, 'administracao'];
         }
@@ -131,7 +129,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     }
     
     if (freteModules.includes(currentModule)) {
-      setExpandedMenus(prev => {
+  setExpandedMenus((prev: string[]) => {
         const newExpanded = [...prev];
         if (!newExpanded.includes('solicitacao-frete')) newExpanded.push('solicitacao-frete');
         if (currentModule === 'frete-smartphone' || currentModule === 'frete-web') {
@@ -143,7 +141,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     
     // Expande submenu de descarte se necessário
     if (currentModule === 'tire-discard-entry' || currentModule === 'tire-discard-reports') {
-      setExpandedMenus(prev => {
+  setExpandedMenus((prev: string[]) => {
         const newExpanded = [...prev];
         if (!newExpanded.includes('pneus')) newExpanded.push('pneus');
         if (!newExpanded.includes('tire-discard')) newExpanded.push('tire-discard');
@@ -232,9 +230,9 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
 
   const toggleSubmenu = (itemId: string) => {
     setHasUserInteracted(true); // Marca que o usuário interagiu
-    setExpandedMenus(prev => 
+    setExpandedMenus((prev: string[]) => 
       prev.includes(itemId) 
-        ? prev.filter(id => id !== itemId)
+        ? prev.filter((id: string) => id !== itemId)
         : [...prev, itemId]
     );
   };

@@ -28,6 +28,7 @@ export const PAGES = {
   ARCS_UPDATE: 'arcs_update',
   // Menu externo controlado por RBAC
   GESTAO_CARGA: 'gestao_carga',
+  SOLICITACAO_FRETE: 'solicitacao_frete',
 } as const;
 
 export type PageKey = typeof PAGES[keyof typeof PAGES];
@@ -227,6 +228,7 @@ export const PAGE_LABELS: Record<PageKey, string> = {
   [PAGES.DATA_IMPORT]: 'Importação de Dados',
   [PAGES.ARCS_UPDATE]: 'Atualização ARCS',
   [PAGES.GESTAO_CARGA]: 'Gestão de Carga',
+  [PAGES.SOLICITACAO_FRETE]: 'Solicitação de frete',
 };
 
 /**
@@ -282,6 +284,7 @@ export const PAGE_CATEGORIES = {
     PAGES.TIRE_MODEL,
     PAGES.CONTAINER,
     PAGES.GESTAO_CARGA,
+    PAGES.SOLICITACAO_FRETE,
   ],
   'Movimentação': [
     PAGES.STOCK_ADJUSTMENT,
