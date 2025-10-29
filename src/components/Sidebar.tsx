@@ -51,9 +51,11 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
     return items.filter(item => {
       // Removido hardcode do perfil "carga" — RBAC controla visibilidade via PAGES
 
+      // Ponto único para descobrir se existe mapeamento para página
+      const pageKey = menuToPageMap[item.id];
+
       // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
       if (item.externalUrl) {
-        const pageKey = menuToPageMap[item.id];
         if (pageKey) {
           return hasPageAccess(PAGES[pageKey]);
         }
@@ -62,6 +64,9 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
       
       // Se tem subItems, filtra recursivamente
       if (item.subItems) {
+        // Se o item pai tem mapeamento de página, respeita RBAC no nível do grupo
+        if (pageKey && !hasPageAccess(PAGES[pageKey])) return false;
+
         const filteredSubItems = filterMenuItems(item.subItems);
         // Se não sobrou nenhum subitem, oculta o item pai
         if (filteredSubItems.length === 0) return false;
@@ -70,7 +75,6 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
       }
       
       // Verifica se tem acesso à página
-      const pageKey = menuToPageMap[item.id];
       if (pageKey) {
         return hasPageAccess(PAGES[pageKey]);
       }

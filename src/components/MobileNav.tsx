@@ -128,9 +128,11 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
     return items.filter(item => {
       // Removido hardcode do perfil "carga" — RBAC controla via PAGES
 
+      // Ponto único: se houver mapeamento, usamos para decidir visibilidade
+      const pageKey = menuToPageMap[item.id];
+
       // Links externos: se houver mapeamento para PAGES, respeita RBAC; senão, mantém visível
       if (item.externalUrl) {
-        const pageKey = menuToPageMap[item.id];
         if (pageKey) {
           return hasPageAccess(PAGES[pageKey]);
         }
@@ -139,6 +141,9 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
 
       // Filtra recursivamente subitens
       if (item.subItems) {
+        // Se o item pai tem mapeamento, respeita RBAC no nível do grupo
+        if (pageKey && !hasPageAccess(PAGES[pageKey])) return false;
+
         const filteredSubItems = filterMenuItems(item.subItems);
         if (filteredSubItems.length === 0) return false;
         item.subItems = filteredSubItems;
@@ -146,7 +151,6 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
       }
 
       // Verifica acesso à página
-      const pageKey = menuToPageMap[item.id];
       if (pageKey) {
         return hasPageAccess(PAGES[pageKey]);
       }
