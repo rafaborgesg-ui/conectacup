@@ -30,6 +30,9 @@ import {
   FEATURE_CATEGORIES,
   PageKey,
   FeatureKey,
+  applyOverridesToProfiles,
+  getProfileOverrides,
+  saveProfileOverrides,
 } from '../utils/permissions';
 
 export function AccessProfileManagement() {
@@ -121,11 +124,12 @@ export function AccessProfileManagement() {
         throw new Error(result.error || 'Erro ao carregar perfis');
       }
       
-      console.log(`✅ ${result.data.length} perfil(is) carregado(s) do Supabase`);
-      setProfiles(result.data);
+  console.log(`✅ ${result.data.length} perfil(is) carregado(s) do Supabase`);
+  const merged = applyOverridesToProfiles(result.data);
+  setProfiles(merged);
       
-      // Atualiza cache do localStorage
-      localStorage.setItem('porsche-cup-profiles', JSON.stringify(result.data));
+  // Atualiza cache do localStorage com overrides aplicados
+  localStorage.setItem('porsche-cup-profiles', JSON.stringify(merged));
       
     } catch (error: any) {
       console.error('❌ Erro ao carregar perfis:', error);
@@ -186,6 +190,27 @@ export function AccessProfileManagement() {
       }
       
       if (editingId) {
+        const current = profiles.find(p => p.id === editingId);
+        if (current?.isSystem) {
+          // Backend bloqueia edição de perfis do sistema: salva override local
+          const overrides = getProfileOverrides();
+          overrides[editingId] = {
+            name: formData.name,
+            description: formData.description,
+            pages: formData.pages,
+            features: formData.features,
+          };
+          saveProfileOverrides(overrides);
+
+          toast.success('✅ Perfil atualizado (override local)', {
+            description: `${formData.name} foi atualizado localmente. As permissões passam a valer imediatamente neste app.`,
+          });
+
+          // Recarrega lista com overrides aplicados
+          await loadProfiles();
+          resetForm();
+          return;
+        }
         // Atualiza perfil existente
         const response = await fetch(
           `https://${projectId}.supabase.co/functions/v1/make-server-02726c7c/access-profiles/${editingId}`,
