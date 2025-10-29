@@ -77,10 +77,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
         return hasPageAccess(PAGES[pageKey]);
       }
       
-      // Se não tem mapeamento, mantém comportamento antigo (adminOnly)
-      if (item.adminOnly && userRole !== 'admin') {
-        return false;
-      }
+      // Se não tem mapeamento para página, não bloqueia por adminOnly; exibição depende dos subitens filtrados
       
       return true;
     });

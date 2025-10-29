@@ -2533,10 +2533,10 @@ app.put("/make-server-02726c7c/access-profiles/:id", authMiddleware, adminMiddle
     
     console.log(`✏️ Atualizando perfil: ${profileId}`);
     
-    // Verifica se perfil existe e se não é do sistema
+    // Verifica se perfil existe
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from('access_profiles')
-      .select('is_system')
+        .select('is_system')
       .eq('id', profileId)
       .single();
     
@@ -2546,15 +2546,10 @@ app.put("/make-server-02726c7c/access-profiles/:id", authMiddleware, adminMiddle
         error: 'Perfil não encontrado' 
       }, 404);
     }
+    // A PARTIR DE AGORA: Perfis do sistema também podem ser editados por Admin
+    // Regra: não alteramos o flag is_system; apenas campos funcionais (nome, descrição, páginas, features, is_default)
     
-    if (existing.is_system) {
-      return c.json({ 
-        success: false, 
-        error: 'Perfis do sistema não podem ser editados' 
-      }, 403);
-    }
-    
-    // Atualiza perfil
+    // Atualiza perfil (inclui perfis do sistema)
     const { data, error } = await supabaseAdmin
       .from('access_profiles')
       .update({
