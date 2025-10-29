@@ -257,7 +257,9 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
         style={{
           backgroundImage: `url(${bgImage})`,
           opacity: 1.0,
-          transform: `translateY(-150px) scale(${isMobile ? '0.7' : '0.82'})`,
+          // 📱 Ajuste mobile: remove o scale para evitar bordas pretas nas laterais
+          // Mantém apenas o deslocamento vertical para preservar o enquadramento atual
+          transform: isMobile ? 'translateY(-150px)' : 'translateY(-150px) scale(0.82)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           width: '100%',
