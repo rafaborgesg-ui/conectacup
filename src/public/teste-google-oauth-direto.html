@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teste Google OAuth Direto - Conecta Cup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #D50000;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin: 10px 0;
+    }
+
+    .status.success {
+      background: rgba(0, 168, 107, 0.2);
+      color: #00A86B;
+    }
+
+    .status.error {
+      background: rgba(213, 0, 0, 0.2);
+      color: #FF5252;
+    }
+
+    .status.info {
+      background: rgba(0, 168, 213, 0.2);
+      color: #00A8D5;
+    }
+
+    button {
+      background: linear-gradient(90deg, #D50000, #B00000);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 10px 5px 10px 0;
+      transition: all 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(213, 0, 0, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .log-container {
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      max-height: 500px;
+      overflow-y: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .log-line {
+      padding: 4px 0;
+      border-bottom: 1px solid #111;
+    }
+
+    .log-line.success { color: #0f0; }
+    .log-line.error { color: #f00; }
+    .log-line.warning { color: #ff0; }
+    .log-line.info { color: #0ff; }
+
+    .section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .section h2 {
+      color: #D50000;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .info-item {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 12px;
+      border-radius: 6px;
+      margin: 8px 0;
+      border-left: 3px solid #D50000;
+    }
+
+    .info-item label {
+      display: block;
+      color: #888;
+      font-size: 0.8rem;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .info-item .value {
+      font-family: 'Courier New', monospace;
+      color: #fff;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Teste Google OAuth Direto</h1>
+    <p>Conecta Cup - Modo Compatível</p>
+
+    <div class="section">
+      <h2>Status da Configuração</h2>
+      <div id="configStatus"></div>
+    </div>
+
+    <div class="section">
+      <h2>Ações</h2>
+      <button id="btnTest" onclick="testarOAuth()">🚀 TESTAR OAUTH GOOGLE</button>
+      <button onclick="limparCache()">🗑️ LIMPAR CACHE</button>
+      <button onclick="verificarCallback()">🔍 VERIFICAR CALLBACK</button>
+      <button onclick="location.reload()">🔄 RECARREGAR</button>
+    </div>
+
+    <div class="section">
+      <h2>Logs do Sistema</h2>
+      <div class="log-container" id="logs"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    const PROJECT_ID = 'nflgqugaabtxzifyhjor';
+    const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5mbGdxdWdhYWJ0eHppZnloam9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNjU4MDQsImV4cCI6MjA3NTg0MTgwNH0.V6Is77Z0AfcY1K3H0b2yr5HDCGKX8OAHdx6bUnZYzOA';
+    const SUPABASE_URL = `https://${PROJECT_ID}.supabase.co`;
+
+    const logsDiv = document.getElementById('logs');
+    const configStatusDiv = document.getElementById('configStatus');
+
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString('pt-BR');
+      const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : 'ℹ️';
+      const logLine = document.createElement('div');
+      logLine.className = `log-line ${type}`;
+      logLine.textContent = `[${timestamp}] ${icon} ${message}`;
+      logsDiv.appendChild(logLine);
+      logsDiv.scrollTop = logsDiv.scrollHeight;
+      console.log(`${icon} ${message}`);
+    }
+
+    function mostrarConfig() {
+      configStatusDiv.innerHTML = `
+        <div class="info-item">
+          <label>Project ID</label>
+          <div class="value">${PROJECT_ID}</div>
+        </div>
+        <div class="info-item">
+          <label>Supabase URL</label>
+          <div class="value">${SUPABASE_URL}</div>
+        </div>
+        <div class="info-item">
+          <label>URL Atual</label>
+          <div class="value">${window.location.href}</div>
+        </div>
+        <div class="info-item">
+          <label>Callback Esperado</label>
+          <div class="value">${SUPABASE_URL}/auth/v1/callback</div>
+        </div>
+        <div class="status info">
+          ℹ️ Google Cloud Console deve ter esta URL configurada
+        </div>
+      `;
+    }
+
+    window.limparCache = function() {
+      log('Limpando cache...', 'info');
+      localStorage.clear();
+      sessionStorage.clear();
+      log('✅ Cache limpo!', 'success');
+      setTimeout(() => location.reload(), 500);
+    };
+
+    window.verificarCallback = function() {
+      log('='.repeat(60), 'info');
+      log('VERIFICANDO URL ATUAL', 'info');
+      log('='.repeat(60), 'info');
+      
+      const url = new URL(window.location.href);
+      const hash = url.hash;
+      const search = url.search;
+      
+      log(`URL completa: ${window.location.href}`, 'info');
+      log(`Hash: ${hash || '(vazio)'}`, 'info');
+      log(`Search: ${search || '(vazio)'}`, 'info');
+      
+      if (hash.includes('access_token') || search.includes('code=')) {
+        log('✅ CALLBACK DETECTADO!', 'success');
+        log('OAuth retornou com sucesso!', 'success');
+        
+        if (hash.includes('access_token')) {
+          log('Tipo: Implicit Flow (access_token no hash)', 'info');
+        }
+        if (search.includes('code=')) {
+          log('Tipo: PKCE Flow (code no query string)', 'info');
+        }
+      } else {
+        log('❌ Não é callback OAuth', 'warning');
+        log('URL não contém access_token nem code', 'warning');
+      }
+      
+      log('='.repeat(60), 'info');
+    };
+
+    window.testarOAuth = async function() {
+      const btn = document.getElementById('btnTest');
+      btn.disabled = true;
+      
+      try {
+        log('='.repeat(60), 'success');
+        log('🚀 INICIANDO TESTE OAUTH - MODO COMPATÍVEL', 'success');
+        log('='.repeat(60), 'success');
+        
+        log('Importando Supabase client...', 'info');
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+        
+        log('Criando cliente Supabase...', 'info');
+        const supabase = createClient(SUPABASE_URL, ANON_KEY);
+        log('✅ Cliente criado!', 'success');
+        
+        // 🎯 FORÇA redirect para a raiz
+        const redirectUrl = window.location.origin + '/';
+        
+        log('', 'info');
+        log('Configuração OAuth:', 'info');
+        log(`  Provider: Google`, 'info');
+        log(`  Modo: FORÇADO com redirectTo`, 'info');
+        log(`  Redirect URL: ${redirectUrl}`, 'info');
+        log('', 'info');
+        
+        log('Iniciando OAuth...', 'warning');
+        
+        const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: redirectUrl,
+            skipBrowserRedirect: false,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'select_account',
+            },
+          },
+        });
+
+        if (error) {
+          log('', 'error');
+          log('❌ ERRO AO INICIAR OAUTH', 'error');
+          log(`Mensagem: ${error.message}`, 'error');
+          log(`Código: ${error.status || 'N/A'}`, 'error');
+          log('', 'error');
+          log('Possíveis causas:', 'warning');
+          log('  1. Google Provider não habilitado no Supabase', 'warning');
+          log('  2. Client ID/Secret incorretos', 'warning');
+          log('  3. Redirect URI não configurada no Google Cloud', 'warning');
+          btn.disabled = false;
+          return;
+        }
+
+        log('', 'success');
+        log('✅ OAuth iniciado com sucesso!', 'success');
+        log('Você será redirecionado para o Google...', 'info');
+        log('', 'info');
+        log('FLUXO ESPERADO:', 'info');
+        log('  1. Vai para accounts.google.com', 'info');
+        log('  2. Escolhe conta Google', 'info');
+        log(`  3. Volta para ${SUPABASE_URL}/auth/v1/callback?code=...`, 'info');
+        log('  4. Supabase processa', 'info');
+        log('  5. Redireciona para Site URL configurado', 'info');
+        log('', 'info');
+        log('⏳ Aguardando redirecionamento...', 'warning');
+
+      } catch (err) {
+        log('', 'error');
+        log('❌ ERRO CRÍTICO', 'error');
+        log(`${err.message}`, 'error');
+        console.error(err);
+        btn.disabled = false;
+      }
+    };
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      log('🚀 Sistema iniciado', 'success');
+      mostrarConfig();
+      verificarCallback();
+      
+      // Se é callback, mostra alerta
+      const hash = window.location.hash;
+      const search = window.location.search;
+      if (hash.includes('access_token') || search.includes('code=')) {
+        log('', 'success');
+        log('🎉 CALLBACK OAUTH DETECTADO!', 'success');
+        log('O login foi bem-sucedido!', 'success');
+      }
+    });
+  </script>
+</body>
+</html>

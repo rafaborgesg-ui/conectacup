@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerador de Ícones PWA - Porsche Cup Brasil</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #D50000 0%, #A80000 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #D50000;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .upload-area {
+      border: 3px dashed #D50000;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 30px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .upload-area:hover {
+      background: #FFF5F5;
+      border-color: #A80000;
+    }
+
+    .upload-area.active {
+      background: #FFF5F5;
+      border-color: #00A86B;
+      border-style: solid;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .upload-text {
+      color: #666;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .upload-hint {
+      color: #999;
+      font-size: 12px;
+    }
+
+    .preview-area {
+      display: none;
+      margin-bottom: 30px;
+    }
+
+    .preview-area.active {
+      display: block;
+    }
+
+    .preview-image {
+      max-width: 200px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin: 0 auto 20px;
+      display: block;
+    }
+
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .icon-item {
+      text-align: center;
+    }
+
+    .icon-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      margin-bottom: 8px;
+    }
+
+    .icon-label {
+      font-size: 12px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .button {
+      background: linear-gradient(135deg, #D50000 0%, #A80000 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(213, 0, 0, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .success-message {
+      background: #00A86B;
+      color: white;
+      padding: 16px;
+      border-radius: 12px;
+      text-align: center;
+      display: none;
+      margin-top: 20px;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .success-message.active {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .instructions {
+      background: #F5F5F5;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 30px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #666;
+    }
+
+    .instructions h3 {
+      color: #D50000;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .instructions ol {
+      margin-left: 20px;
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+
+    .instructions code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏁 Gerador de Ícones PWA</h1>
+    <p class="subtitle">Porsche Cup Brasil - Sistema de Gestão de Pneus</p>
+
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📸</div>
+      <div class="upload-text">Clique ou arraste o logo aqui</div>
+      <div class="upload-hint">PNG ou JPG - Recomendado: 1024x1024px ou maior</div>
+      <input type="file" id="fileInput" accept="image/png,image/jpeg,image/jpg">
+    </div>
+
+    <div class="preview-area" id="previewArea">
+      <img id="previewImage" class="preview-image" alt="Preview">
+      
+      <div class="icons-grid" id="iconsGrid"></div>
+
+      <button class="button" id="downloadAllBtn">
+        ⬇️ Baixar Todos os Ícones (ZIP)
+      </button>
+
+      <button class="button" id="downloadIndividualBtn" style="background: #00A86B;">
+        📥 Baixar Individualmente
+      </button>
+
+      <div class="success-message" id="successMessage">
+        ✅ Ícones gerados com sucesso!
+      </div>
+    </div>
+
+    <div class="instructions">
+      <h3>📋 Instruções de Uso</h3>
+      <ol>
+        <li><strong>Upload:</strong> Faça upload do logo da Porsche Cup (PNG ou JPG)</li>
+        <li><strong>Geração:</strong> Os ícones serão gerados automaticamente nos tamanhos: 72, 96, 128, 144, 152, 192, 384, 512</li>
+        <li><strong>Download:</strong> Clique em "Baixar Todos" para obter um ZIP com todos os ícones</li>
+        <li><strong>Instalação:</strong> Coloque os arquivos na pasta <code>/public</code> do projeto</li>
+        <li><strong>Pronto!</strong> O PWA já estará configurado para instalação</li>
+      </ol>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const previewArea = document.getElementById('previewArea');
+    const previewImage = document.getElementById('previewImage');
+    const iconsGrid = document.getElementById('iconsGrid');
+    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const downloadIndividualBtn = document.getElementById('downloadIndividualBtn');
+    const successMessage = document.getElementById('successMessage');
+
+    const ICON_SIZES = [72, 96, 128, 144, 152, 192, 384, 512];
+    let generatedIcons = [];
+
+    // Upload handlers
+    uploadArea.addEventListener('click', () => fileInput.click());
+    
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('active');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('active');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('active');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        handleFile(file);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        handleFile(file);
+      }
+    });
+
+    function handleFile(file) {
+      const reader = new FileReader();
+      
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          previewImage.src = e.target.result;
+          previewArea.classList.add('active');
+          generateIcons(img);
+        };
+        img.src = e.target.result;
+      };
+      
+      reader.readAsDataURL(file);
+    }
+
+    function generateIcons(sourceImage) {
+      iconsGrid.innerHTML = '';
+      generatedIcons = [];
+
+      ICON_SIZES.forEach(size => {
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Background branco
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, size, size);
+
+        // Desenha a imagem centralizada com padding
+        const padding = size * 0.1; // 10% de padding
+        const imageSize = size - (padding * 2);
+        ctx.drawImage(sourceImage, padding, padding, imageSize, imageSize);
+
+        // Converte para blob
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          generatedIcons.push({ size, blob, url });
+
+          // Cria preview
+          const iconItem = document.createElement('div');
+          iconItem.className = 'icon-item';
+          iconItem.innerHTML = `
+            <img src="${url}" class="icon-preview" alt="${size}x${size}">
+            <div class="icon-label">${size}×${size}</div>
+          `;
+          iconsGrid.appendChild(iconItem);
+        }, 'image/png');
+      });
+
+      setTimeout(() => {
+        successMessage.classList.add('active');
+        setTimeout(() => successMessage.classList.remove('active'), 3000);
+      }, 500);
+    }
+
+    downloadAllBtn.addEventListener('click', async () => {
+      if (generatedIcons.length === 0) return;
+
+      const zip = new JSZip();
+      const folder = zip.folder('pwa-icons');
+
+      for (const icon of generatedIcons) {
+        folder.file(`icon-${icon.size}.png`, icon.blob);
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      saveAs(content, 'porsche-cup-pwa-icons.zip');
+      
+      successMessage.textContent = '✅ ZIP baixado com sucesso!';
+      successMessage.classList.add('active');
+      setTimeout(() => successMessage.classList.remove('active'), 3000);
+    });
+
+    downloadIndividualBtn.addEventListener('click', () => {
+      if (generatedIcons.length === 0) return;
+
+      generatedIcons.forEach(icon => {
+        const link = document.createElement('a');
+        link.href = icon.url;
+        link.download = `icon-${icon.size}.png`;
+        link.click();
+      });
+
+      successMessage.textContent = '✅ Download iniciado!';
+      successMessage.classList.add('active');
+      setTimeout(() => successMessage.classList.remove('active'), 3000);
+    });
+  </script>
+</body>
+</html>

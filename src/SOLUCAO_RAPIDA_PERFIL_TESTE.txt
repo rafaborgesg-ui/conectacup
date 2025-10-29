@@ -1,0 +1,194 @@
+═══════════════════════════════════════════════════════════════════
+  🚨 SOLUÇÃO RÁPIDA - Perfil "teste" não funciona
+═══════════════════════════════════════════════════════════════════
+
+📍 PROBLEMA IDENTIFICADO
+
+Usuário: rafael.borges@porschegt3cup.com.br
+Perfil atribuído: "teste"
+Sintoma: Sistema mostra "Acesso Negado" em todas as páginas
+
+═══════════════════════════════════════════════════════════════════
+
+⚡ SOLUÇÃO EM 3 PASSOS (5 MINUTOS)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PASSO 1: VERIFICAR NO SUPABASE (1 min)                          │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Abra: https://supabase.com/dashboard/project/nflgqugaabtxzifyhjor/sql
+
+2. Cole este comando:
+
+   SELECT 
+     u.email,
+     u.raw_user_meta_data->>'profileId' as profile_id,
+     p.name as profile_name
+   FROM auth.users u
+   LEFT JOIN access_profiles p 
+     ON p.id = u.raw_user_meta_data->>'profileId'
+   WHERE u.email = 'rafael.borges@porschegt3cup.com.br';
+
+3. Clique RUN
+
+4. Verifique resultado:
+   ├── Se profile_id = "teste" ✅ Vá para PASSO 2
+   └── Se profile_id = NULL ou diferente ❌ Vá para CORREÇÃO A
+
+┌─────────────────────────────────────────────────────────────────┐
+│ CORREÇÃO A: Atualizar profileId (se necessário)                 │
+└─────────────────────────────────────────────────────────────────┘
+
+1. No SQL Editor do Supabase, cole:
+
+   UPDATE auth.users
+   SET raw_user_meta_data = raw_user_meta_data || 
+       '{"profileId": "teste"}'::jsonb
+   WHERE email = 'rafael.borges@porschegt3cup.com.br';
+
+2. Clique RUN
+
+3. Deve mostrar: "Success. 1 row updated"
+
+4. ✅ Vá para PASSO 2
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PASSO 2: LIMPAR CACHE DO NAVEGADOR (1 min)                      │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Abra Console do navegador (F12)
+
+2. Cole este código:
+
+   localStorage.clear();
+   sessionStorage.clear();
+   alert('Cache limpo! Página vai recarregar.');
+   location.href = '/';
+
+3. Pressione ENTER
+
+4. ✅ Vá para PASSO 3
+
+┌─────────────────────────────────────────────────────────────────┐
+│ PASSO 3: FAZER LOGIN E TESTAR (3 min)                           │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Faça login:
+   Email: rafael.borges@porschegt3cup.com.br
+   Senha: teste
+
+2. Aguarde "Verificando permissões..."
+
+3. Deve aparecer o Dashboard
+
+4. Abra Console (F12) e procure:
+   ✅ "usePermissions - Perfil carregado: teste"
+   ✅ "Páginas permitidas: [array com suas páginas]"
+
+5. Verifique menu lateral:
+   ✅ Deve mostrar apenas as 14 páginas do perfil "teste"
+
+═══════════════════════════════════════════════════════════════════
+
+🔍 SE AINDA NÃO FUNCIONAR
+
+┌─────────────────────────────────────────────────────────────────┐
+│ DIAGNÓSTICO COMPLETO                                            │
+└─────────────────────────────────────────────────────────────────┘
+
+Faça login e execute no Console (F12):
+
+// 1. Ver usuário
+const user = JSON.parse(localStorage.getItem('porsche-cup-user'));
+console.log('👤 Usuário:', user);
+console.log('🆔 ProfileId:', user.profileId);
+
+// 2. Ver perfis
+const profiles = JSON.parse(localStorage.getItem('porsche-cup-profiles'));
+console.log('📋 Perfis:', profiles);
+
+// 3. Procurar perfil "teste"
+const testProfile = profiles?.find(p => p.id === 'teste');
+console.log('🧪 Perfil teste:', testProfile);
+
+// 4. Ver quantas páginas
+if (testProfile) {
+  console.log('📄 Páginas:', testProfile.pages);
+  console.log('⚙️ Funcionalidades:', testProfile.features);
+} else {
+  console.error('❌ PROBLEMA: Perfil "teste" não está no cache!');
+  console.log('💡 Solução: Vá em "Perfis de Acesso" e clique "Atualizar"');
+}
+
+┌─────────────────────────────────────────────────────────────────┐
+│ FORÇAR RELOAD DE PERFIS                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Faça login como ADMIN
+
+2. Vá em "Perfis de Acesso"
+
+3. Clique no botão "Atualizar" (ícone refresh)
+
+4. Deve carregar 5 perfis (admin, operator, supervisor, viewer, teste)
+
+5. Se o perfil "teste" NÃO aparecer:
+   → Recrie o perfil manualmente
+   → Use exatamente o ID "teste"
+   → Selecione as páginas desejadas
+
+6. Faça logout e login com rafael.borges novamente
+
+═══════════════════════════════════════════════════════════════════
+
+🎯 CHECKLIST FINAL
+
+Após correções, deve ter:
+
+[✓] ProfileId "teste" salvo no Supabase Auth
+[✓] Perfil "teste" existe na tabela access_profiles
+[✓] Cache limpo (localStorage/sessionStorage)
+[✓] Login bem-sucedido com rafael.borges
+[✓] Console mostra "Perfil carregado: teste"
+[✓] Menu mostra apenas páginas do perfil "teste"
+[✓] Não aparece "Acesso Negado"
+
+═══════════════════════════════════════════════════════════════════
+
+🆘 ÚLTIMA OPÇÃO: RECRIAR PERFIL
+
+Se nada funcionar:
+
+1. Login como ADMIN
+
+2. Vá em "Perfis de Acesso"
+
+3. Delete o perfil "teste" (se existir)
+
+4. Crie novo perfil:
+   ├── ID: teste
+   ├── Nome: Teste
+   ├── Descrição: Perfil de teste
+   └── Selecione páginas desejadas
+
+5. Vá em "Gerenciar Usuários"
+
+6. Edite rafael.borges@porschegt3cup.com.br
+
+7. Selecione perfil "teste"
+
+8. Salve
+
+9. Faça logout e login com rafael.borges
+
+10. ✅ Deve funcionar!
+
+═══════════════════════════════════════════════════════════════════
+
+📞 ARQUIVOS DE AJUDA
+
+TESTE_PERFIS_PERSONALIZADO.md - Diagnóstico completo
+FIX_USER_PROFILE_ID.sql - Comandos SQL para correção
+GUIA_MIGRACAO_PERFIS_SUPABASE.md - Documentação completa
+
+═══════════════════════════════════════════════════════════════════

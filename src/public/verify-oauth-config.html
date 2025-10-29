@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificador de Configuração OAuth - Conecta Cup</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, #D50000, #FF5252);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #888;
+      margin-bottom: 40px;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #D50000;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+
+    .status.success {
+      background: rgba(0, 168, 107, 0.2);
+      color: #00A86B;
+      border: 1px solid rgba(0, 168, 107, 0.3);
+    }
+
+    .status.error {
+      background: rgba(213, 0, 0, 0.2);
+      color: #FF5252;
+      border: 1px solid rgba(213, 0, 0, 0.3);
+    }
+
+    .status.warning {
+      background: rgba(255, 193, 7, 0.2);
+      color: #FFC107;
+      border: 1px solid rgba(255, 193, 7, 0.3);
+    }
+
+    .info-item {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border-left: 3px solid #D50000;
+    }
+
+    .info-item label {
+      display: block;
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .info-item .value {
+      font-family: 'Courier New', monospace;
+      color: #fff;
+      font-size: 1rem;
+      word-break: break-all;
+    }
+
+    button {
+      background: linear-gradient(90deg, #D50000, #B00000);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin: 10px 5px 10px 0;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(213, 0, 0, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .code-block {
+      background: #000;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      overflow-x: auto;
+    }
+
+    .code-block pre {
+      margin: 0;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .checklist {
+      list-style: none;
+    }
+
+    .checklist li {
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .checklist li::before {
+      content: '✓';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background: #00A86B;
+      color: white;
+      text-align: center;
+      line-height: 20px;
+      border-radius: 50%;
+      margin-right: 10px;
+      font-size: 0.8rem;
+    }
+
+    .checklist li.pending::before {
+      content: '○';
+      background: #666;
+    }
+
+    .icon {
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Verificador de Configuração OAuth</h1>
+    <p class="subtitle">Conecta Cup - Diagnóstico de Google Sign-In</p>
+
+    <!-- Informações do Sistema -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Informações do Sistema
+      </h2>
+      <div id="systemInfo"></div>
+    </div>
+
+    <!-- Status do Supabase -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+        Status do Supabase
+      </h2>
+      <div id="supabaseStatus"></div>
+    </div>
+
+    <!-- URLs Configuradas -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+        </svg>
+        URLs que devem estar configuradas
+      </h2>
+      <div id="urlsInfo"></div>
+    </div>
+
+    <!-- Checklist de Configuração -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Checklist de Configuração
+      </h2>
+      <ul class="checklist">
+        <li class="pending">Supabase URL Configuration configurada</li>
+        <li class="pending">Google Cloud Console redirect URIs configuradas</li>
+        <li class="pending">Google Provider habilitado no Supabase</li>
+        <li class="pending">Client ID e Secret preenchidos</li>
+        <li class="pending">Cache limpo</li>
+      </ul>
+    </div>
+
+    <!-- Ações -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Ações Rápidas
+      </h2>
+      <button onclick="clearCache()">🗑️ Limpar Cache</button>
+      <button onclick="testOAuth()">🔍 Testar OAuth</button>
+      <button onclick="copyConfig()">📋 Copiar Configuração</button>
+      <button onclick="window.location.reload()">🔄 Recarregar Página</button>
+    </div>
+
+    <!-- Logs -->
+    <div class="section">
+      <h2>
+        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Logs do Sistema
+      </h2>
+      <div class="code-block">
+        <pre id="logs">Aguardando ações...</pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Logs
+    const logElement = document.getElementById('logs');
+    function log(message, type = 'info') {
+      const timestamp = new Date().toLocaleTimeString();
+      const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+      logElement.textContent += `\n[${timestamp}] ${prefix} ${message}`;
+      logElement.scrollTop = logElement.scrollHeight;
+      console.log(message);
+    }
+
+    // Detectar informações do sistema
+    function getSystemInfo() {
+      const info = {
+        currentUrl: window.location.href,
+        origin: window.location.origin,
+        hostname: window.location.hostname,
+        protocol: window.location.protocol,
+        userAgent: navigator.userAgent,
+        isLocalhost: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1',
+      };
+      return info;
+    }
+
+    // Mostrar informações do sistema
+    function displaySystemInfo() {
+      const info = getSystemInfo();
+      const container = document.getElementById('systemInfo');
+      
+      container.innerHTML = `
+        <div class="info-item">
+          <label>URL Atual</label>
+          <div class="value">${info.currentUrl}</div>
+        </div>
+        <div class="info-item">
+          <label>Origin</label>
+          <div class="value">${info.origin}</div>
+        </div>
+        <div class="info-item">
+          <label>Hostname</label>
+          <div class="value">${info.hostname}</div>
+        </div>
+        <div class="status ${info.isLocalhost ? 'warning' : 'success'}">
+          ${info.isLocalhost ? '⚠️ Ambiente Local' : '✅ Ambiente Produção'}
+        </div>
+      `;
+
+      log(`Sistema detectado: ${info.hostname}`);
+    }
+
+    // Mostrar status do Supabase
+    function displaySupabaseStatus() {
+      const container = document.getElementById('supabaseStatus');
+      
+      // Tentar obter info do Supabase
+      try {
+        const hasSupabaseKey = localStorage.getItem('sb-*-auth-token');
+        const sessionKeys = Object.keys(localStorage).filter(key => key.includes('supabase'));
+        
+        container.innerHTML = `
+          <div class="status ${sessionKeys.length > 0 ? 'success' : 'warning'}">
+            ${sessionKeys.length > 0 ? '✅ Supabase detectado' : '⚠️ Supabase não detectado'}
+          </div>
+          <div class="info-item">
+            <label>Session Keys encontradas</label>
+            <div class="value">${sessionKeys.length} chave(s)</div>
+          </div>
+        `;
+
+        log(`Supabase: ${sessionKeys.length} session keys encontradas`);
+      } catch (e) {
+        container.innerHTML = `<div class="status error">❌ Erro ao verificar Supabase</div>`;
+        log(`Erro ao verificar Supabase: ${e.message}`, 'error');
+      }
+    }
+
+    // Mostrar URLs que devem ser configuradas
+    function displayUrls() {
+      const info = getSystemInfo();
+      const container = document.getElementById('urlsInfo');
+      
+      const projectId = 'SEU_PROJECT_ID'; // Placeholder
+      
+      container.innerHTML = `
+        <div class="info-item">
+          <label>Supabase - Site URL</label>
+          <div class="value">${info.origin}</div>
+        </div>
+        <div class="info-item">
+          <label>Supabase - Additional Redirect URLs</label>
+          <div class="value">${info.origin}/**</div>
+        </div>
+        <div class="info-item">
+          <label>Google Cloud - Authorized Redirect URI #1</label>
+          <div class="value">https://${projectId}.supabase.co/auth/v1/callback</div>
+        </div>
+        <div class="info-item">
+          <label>Google Cloud - Authorized Redirect URI #2</label>
+          <div class="value">${info.origin}</div>
+        </div>
+        <div class="status warning">
+          ⚠️ Substitua ${projectId} pelo seu PROJECT_ID real do Supabase
+        </div>
+      `;
+
+      log('URLs de configuração geradas');
+    }
+
+    // Limpar cache
+    function clearCache() {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        log('✅ Cache limpo com sucesso!', 'success');
+        alert('Cache limpo! A página será recarregada.');
+        window.location.reload();
+      } catch (e) {
+        log(`❌ Erro ao limpar cache: ${e.message}`, 'error');
+      }
+    }
+
+    // Testar OAuth
+    function testOAuth() {
+      log('Testando OAuth...');
+      alert('Volte para a aplicação e clique em "Entrar com Google".\nObserve os logs no Console (F12).');
+    }
+
+    // Copiar configuração
+    function copyConfig() {
+      const info = getSystemInfo();
+      const projectId = 'SEU_PROJECT_ID';
+      
+      const config = `
+CONFIGURAÇÃO OAUTH - CONECTA CUP
+================================
+
+SUPABASE - URL Configuration:
+  Site URL: ${info.origin}
+  Additional Redirect URLs: ${info.origin}/**
+
+GOOGLE CLOUD CONSOLE - Authorized Redirect URIs:
+  1. https://${projectId}.supabase.co/auth/v1/callback
+  2. ${info.origin}
+
+⚠️ IMPORTANTE: Substitua ${projectId} pelo seu PROJECT_ID real!
+      `.trim();
+
+      navigator.clipboard.writeText(config).then(() => {
+        log('✅ Configuração copiada para a área de transferência!', 'success');
+        alert('Configuração copiada! Cole em um editor de texto.');
+      }).catch(e => {
+        log(`❌ Erro ao copiar: ${e.message}`, 'error');
+      });
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', () => {
+      log('🚀 Verificador de OAuth iniciado');
+      displaySystemInfo();
+      displaySupabaseStatus();
+      displayUrls();
+    });
+  </script>
+</body>
+</html>

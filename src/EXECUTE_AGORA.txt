@@ -1,0 +1,101 @@
+🚀 REORGANIZAÇÃO DA DOCUMENTAÇÃO - EXECUTAR AGORA
+
+═══════════════════════════════════════════════════════════════
+
+MÉTODO 1: Script Automatizado (30 segundos) - RECOMENDADO
+═══════════════════════════════════════════════════════════════
+
+Linux/Mac/Git Bash:
+-------------------
+bash reorganizar.sh
+
+
+Windows CMD:
+-----------
+bash reorganizar.sh
+
+
+Depois:
+-------
+git add .
+git commit -m "docs: reorganizar 150+ arquivos em estrutura lógica"
+
+
+═══════════════════════════════════════════════════════════════
+
+MÉTODO 2: Copy-Paste Manual (5 minutos)
+═══════════════════════════════════════════════════════════════
+
+# 1. Criar pastas
+mkdir -p docs/migrations/{sql,guides}
+mkdir -p docs/troubleshooting/{auth,database,import,status,other}
+mkdir -p docs/features/{pwa,loading-states,modo-rapido,mobile,performance,quick-wins,components}
+mkdir -p docs/ux-audit/{audits,improvements,reviews}
+mkdir -p docs/{releases,business,guides,archive}
+
+# 2. Mover SQL (todos de uma vez)
+mv MIGRATION_*.sql INSERT_*.sql SETUP_*.sql RESET_*.sql docs/migrations/sql/
+mv FIX_*.sql UPDATE_*.sql CLEAR_*.sql DELETE_*.sql VERIFY_*.sql QUICK_FIX.sql DEBUG_STATUS_PILOTO.sql docs/migrations/sql/
+
+# 3. Mover Guias de Migração
+mv MIGRATION_STEP_BY_STEP.md MIGRATION_NOTES.md README_MIGRATION.md docs/migrations/guides/
+
+# 4. Mover Troubleshooting
+mv FIX_AUTH_*.md INSTRUCOES_URGENTES_LOGIN.md FIX_HOOKS_ERROR.md docs/troubleshooting/auth/
+mv FIX_CONTAINERS_CHECK_*.md TROUBLESHOOTING_*.md SOLUCAO_*.md docs/troubleshooting/database/
+mv FIX_UUID_*.md docs/troubleshooting/database/
+mv DEBUG_ENTRADA_*.md FIX_DATA_IMPORT_*.md FIX_ENTRADA_*.md docs/troubleshooting/import/
+mv CORRECAO_STATUS_*.md DEBUG_STATUS_PILOTO_ZERO.md FIX_STATUS_*.md INSTRUCOES_CORRECAO_STATUS.md docs/troubleshooting/status/
+mv FIX_BARCODE_*.md FIX_BULK_*.md FIX_CHECKBARCODEEXISTS_*.md docs/troubleshooting/other/
+mv FIX_EDGE_*.md FIX_LIMIT_*.md FIX_POSTGREST_*.md docs/troubleshooting/other/
+mv FIX_TIRE_*.md FIX_DUPLICATE_*.md FIX_DELETE_*.md docs/troubleshooting/other/
+
+# 5. Mover Features
+mv PWA_*.md docs/features/pwa/
+mv LOADING_STATES_*.md docs/features/loading-states/
+mv MODO_RAPIDO_*.md docs/features/modo-rapido/
+mv MOBILE_*.md SPRINT_5_*.md docs/features/mobile/
+mv PERFORMANCE_*.md QUERIES_OPTIMIZATION_*.md USE_DATA_FETCH_IMPLEMENTADO.md docs/features/performance/
+mv QUICK_WIN*.md docs/features/quick-wins/
+mv STATCARD_*.md TOAST_*.md VALIDACAO_*.md COLUMN_*.md DASHBOARD_GRAFICOS_*.md docs/features/components/
+
+# 6. Mover UX Audits
+mv UX_AUDIT_*.md UX_UI_*.md docs/ux-audit/audits/
+mv UX_IMPROVEMENTS_*.md UX_MELHORIAS_*.md MELHORIAS_UX_*.md ACESSIBILIDADE_*.md docs/ux-audit/improvements/
+mv UX_REVIEW_*.md docs/ux-audit/reviews/
+
+# 7. Mover Releases, Business, Guides
+mv STATUS_PROJETO.md PROGRESSO_*.md MELHORIAS_IMPLEMENTADAS_RESUMO.md docs/releases/
+mv INTEGRACAO_*.md INTEGRACOES_*.md LIMPEZA_COMPLETA.md docs/releases/
+mv ROADMAP_*.md PROXIMAS_*.md PROXIMOS_PASSOS.md docs/releases/
+mv BUSINESS_RULES_*.md ARCS_*.md docs/business/
+mv DEPLOYMENT.md OPTIMIZATION_INDEX.md COMO_COMPLETAR_*.md docs/guides/
+mv LOCALIZACAO_*.md VISUAL_BOTAO_*.md VISUAL_FEEDBACK_*.md USE_DATA_FETCH_QUICK_REFERENCE.md docs/guides/
+mv REFATORACAO_*.md SYNC_*.md RESUMO_INTEGRACOES.md docs/archive/
+
+# 8. Verificar
+ls *.md | grep -v README | grep -v Attributions
+ls -R docs/
+
+═══════════════════════════════════════════════════════════════
+
+RESULTADO ESPERADO:
+═══════════════════════════════════════════════════════════════
+
+ANTES:
+------
+150+ arquivos .md/.sql na raiz 😱
+
+DEPOIS:
+-------
+Raiz: README.md, Attributions.md, App.tsx ✨
+/docs/ com 8 categorias organizadas 📚
+
+Melhoria: -93% arquivos na raiz
+Navegação: 10x melhor
+Onboarding: 5min vs 30min
+
+═══════════════════════════════════════════════════════════════
+
+EXECUTE AGORA!  → bash reorganizar.sh
+═══════════════════════════════════════════════════════════════

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🚀 Gerador Automático de Ícones PWA</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #D50000 0%, #A80000 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 900px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      color: #D50000;
+      margin-bottom: 10px;
+      font-size: 32px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .status {
+      background: #F5F5F5;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .status-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .status-text {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      margin: 30px 0;
+    }
+
+    .icon-card {
+      background: #F9F9F9;
+      border-radius: 16px;
+      padding: 16px;
+      text-align: center;
+      transition: all 0.3s;
+      border: 2px solid transparent;
+    }
+
+    .icon-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      border-color: #D50000;
+    }
+
+    .icon-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon-preview img {
+      width: 90%;
+      height: 90%;
+      object-fit: contain;
+    }
+
+    .icon-size {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .icon-status {
+      font-size: 11px;
+      color: #999;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #E5E5E5;
+      display: inline-block;
+    }
+
+    .icon-status.ready {
+      background: #D4F4DD;
+      color: #00A86B;
+    }
+
+    .button {
+      background: linear-gradient(135deg, #D50000 0%, #A80000 100%);
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      width: 100%;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(213, 0, 0, 0.3);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button-secondary {
+      background: #00A86B;
+    }
+
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .alert {
+      background: #FFF5F5;
+      border: 2px solid #FFE5E5;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: start;
+      gap: 12px;
+    }
+
+    .alert-icon {
+      font-size: 24px;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-weight: 600;
+      color: #D50000;
+      margin-bottom: 4px;
+    }
+
+    .alert-text {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .progress {
+      background: #E5E5E5;
+      border-radius: 8px;
+      height: 8px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-bar {
+      background: linear-gradient(90deg, #D50000 0%, #00A86B 100%);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+      border-radius: 8px;
+    }
+
+    .code-block {
+      background: #1F2937;
+      color: #F9FAFB;
+      padding: 16px;
+      border-radius: 12px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      color: #10B981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <span>🚀</span>
+      Gerador Automático de Ícones PWA
+    </h1>
+    <p class="subtitle">Porsche Cup Brasil - Clique no botão para gerar todos os ícones automaticamente</p>
+
+    <div class="alert">
+      <div class="alert-icon">💡</div>
+      <div class="alert-content">
+        <div class="alert-title">Como funciona</div>
+        <div class="alert-text">
+          Este gerador cria automaticamente todos os ícones PWA necessários (72px até 512px) usando o logo SVG oficial da Porsche Cup. 
+          Clique em "Gerar Todos os Ícones" e depois em "Baixar ZIP" para salvar.
+        </div>
+      </div>
+    </div>
+
+    <div class="status" id="status">
+      <div class="status-icon">⏳</div>
+      <div class="status-text">Pronto para gerar ícones</div>
+    </div>
+
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <button class="button" id="generateBtn">
+      <span>✨</span>
+      <span>Gerar Todos os Ícones</span>
+    </button>
+
+    <button class="button button-secondary" id="downloadBtn" disabled>
+      <span>⬇️</span>
+      <span>Baixar ZIP com Todos os Ícones</span>
+    </button>
+
+    <div class="icons-grid" id="iconsGrid"></div>
+
+    <div class="code-block">
+      <strong>📂 Próximo passo:</strong><br>
+      1. Baixe o ZIP gerado<br>
+      2. Extraia os arquivos<br>
+      3. Copie todos os <code>icon-*.png</code> para a pasta <code>/public</code><br>
+      4. Pronto! Seu PWA estará 100% configurado ✅
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  
+  <script>
+    const ICON_SIZES = [72, 96, 128, 144, 152, 192, 384, 512];
+    const SVG_CONTENT = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="115" fill="url(#gradient)"/>
+  <path d="M256 80L140 120V240C140 320 180 380 256 432C332 380 372 320 372 240V120L256 80Z" fill="white" fill-opacity="0.15"/>
+  <g transform="translate(256, 256)">
+    <circle cx="0" cy="0" r="110" fill="none" stroke="white" stroke-width="16"/>
+    <circle cx="0" cy="0" r="70" fill="none" stroke="white" stroke-width="12"/>
+    <line x1="-90" y1="0" x2="-50" y2="0" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="90" y1="0" x2="50" y2="0" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="0" y1="-90" x2="0" y2="-50" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="0" y1="90" x2="0" y2="50" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="-63" y1="-63" x2="-35" y2="-35" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="63" y1="63" x2="35" y2="35" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="63" y1="-63" x2="35" y2="-35" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <line x1="-63" y1="63" x2="-35" y2="35" stroke="white" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="0" cy="0" r="25" fill="white"/>
+    <circle cx="0" cy="0" r="15" fill="#D50000"/>
+  </g>
+  <text x="256" y="420" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="white" text-anchor="middle">PORSCHE CUP</text>
+  <text x="256" y="455" font-family="Arial, sans-serif" font-size="18" font-weight="600" fill="white" fill-opacity="0.9" text-anchor="middle">Gestão de Pneus</text>
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#D50000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A80000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+</svg>`;
+
+    let generatedIcons = [];
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const status = document.getElementById('status');
+    const progressBar = document.getElementById('progressBar');
+    const iconsGrid = document.getElementById('iconsGrid');
+
+    generateBtn.addEventListener('click', generateAllIcons);
+    downloadBtn.addEventListener('click', downloadZip);
+
+    async function generateAllIcons() {
+      generateBtn.disabled = true;
+      generatedIcons = [];
+      iconsGrid.innerHTML = '';
+      
+      status.innerHTML = `
+        <div class="status-icon">⚙️</div>
+        <div class="status-text">Gerando ícones...</div>
+      `;
+
+      const blob = new Blob([SVG_CONTENT], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      
+      img.onload = async () => {
+        for (let i = 0; i < ICON_SIZES.length; i++) {
+          const size = ICON_SIZES[i];
+          await generateIcon(img, size);
+          
+          const progress = ((i + 1) / ICON_SIZES.length) * 100;
+          progressBar.style.width = `${progress}%`;
+        }
+        
+        status.innerHTML = `
+          <div class="status-icon">✅</div>
+          <div class="status-text">Todos os ícones foram gerados com sucesso!</div>
+        `;
+        
+        downloadBtn.disabled = false;
+        generateBtn.disabled = false;
+      };
+      
+      img.src = url;
+    }
+
+    async function generateIcon(sourceImg, size) {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      ctx.drawImage(sourceImg, 0, 0, size, size);
+      
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          const url = URL.createObjectURL(blob);
+          generatedIcons.push({ size, blob, url });
+          
+          const card = document.createElement('div');
+          card.className = 'icon-card';
+          card.innerHTML = `
+            <div class="icon-preview">
+              <img src="${url}" alt="${size}x${size}">
+            </div>
+            <div class="icon-size">${size}×${size}</div>
+            <div class="icon-status ready">✓ Pronto</div>
+          `;
+          iconsGrid.appendChild(card);
+          
+          resolve();
+        }, 'image/png');
+      });
+    }
+
+    async function downloadZip() {
+      if (generatedIcons.length === 0) return;
+
+      status.innerHTML = `
+        <div class="status-icon">📦</div>
+        <div class="status-text">Criando arquivo ZIP...</div>
+      `;
+
+      const zip = new JSZip();
+      const folder = zip.folder('pwa-icons');
+
+      for (const icon of generatedIcons) {
+        folder.file(`icon-${icon.size}.png`, icon.blob);
+      }
+
+      // Adiciona README
+      const readme = `# Ícones PWA - Porsche Cup Brasil
+
+Estes ícones foram gerados automaticamente para o Progressive Web App (PWA).
+
+## Tamanhos incluídos:
+- icon-72.png (72×72px)
+- icon-96.png (96×96px)
+- icon-128.png (128×128px)
+- icon-144.png (144×144px)
+- icon-152.png (152×152px)
+- icon-192.png (192×192px)
+- icon-384.png (384×384px)
+- icon-512.png (512×512px)
+
+## Instalação:
+1. Copie todos os arquivos .png para a pasta /public do projeto
+2. O manifest.json já está configurado para usar esses ícones
+3. Pronto! Seu PWA está completo.
+
+## Verificação:
+- Abra as DevTools do Chrome
+- Vá em Application > Manifest
+- Confirme que todos os ícones aparecem sem erros
+
+---
+Gerado em: ${new Date().toLocaleString('pt-BR')}
+`;
+      folder.file('README.md', readme);
+
+      const content = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 9 }
+      });
+      
+      saveAs(content, 'porsche-cup-pwa-icons.zip');
+      
+      status.innerHTML = `
+        <div class="status-icon">🎉</div>
+        <div class="status-text">Download iniciado! Confira seus downloads.</div>
+      `;
+    }
+  </script>
+</body>
+</html>

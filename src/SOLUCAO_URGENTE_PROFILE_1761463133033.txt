@@ -1,0 +1,219 @@
+═══════════════════════════════════════════════════════════════════
+  🚨 SOLUÇÃO URGENTE - Perfil "profile-1761463133033" não encontrado
+═══════════════════════════════════════════════════════════════════
+
+🔴 PROBLEMA IDENTIFICADO
+
+Usuário: rafael.borges@porschegt3cup.com.br
+ProfileId atual: profile-1761463133033
+Erro: "⚠️ Perfil não encontrado para profileId/role: profile-1761463133033"
+
+❌ Causa: O perfil foi criado localmente mas NÃO foi salvo no Supabase
+         ou foi deletado mas o usuário ainda tem referência a ele.
+
+═══════════════════════════════════════════════════════════════════
+
+⚡ SOLUÇÃO IMEDIATA (2 MINUTOS)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ OPÇÃO 1: ATRIBUIR PERFIL "ADMIN" (RECOMENDADO)                  │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Abra SQL Editor do Supabase:
+   https://supabase.com/dashboard/project/nflgqugaabtxzifyhjor/sql
+
+2. Cole este comando:
+
+   UPDATE auth.users
+   SET raw_user_meta_data = raw_user_meta_data || '{"profileId": "admin"}'::jsonb
+   WHERE email = 'rafael.borges@porschegt3cup.com.br';
+
+3. Clique RUN
+
+4. Deve mostrar: "Success. 1 row updated"
+
+5. ✅ Limpe cache do navegador:
+   - Abra Console (F12)
+   - Cole: localStorage.clear(); sessionStorage.clear(); location.href = '/';
+   - Pressione ENTER
+
+6. ✅ Faça login novamente
+
+7. ✅ PRONTO! Agora rafael.borges tem perfil "admin" com acesso total
+
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ OPÇÃO 2: CRIAR O PERFIL FALTANTE (SE QUISER MANTER AS CONFIGS)  │
+└─────────────────────────────────────────────────────────────────┘
+
+1. Faça login como ADMIN
+
+2. Vá em "Perfis de Acesso"
+
+3. Clique em "Criar Novo Perfil"
+
+4. Preencha:
+   ├── Nome: Perfil Rafael
+   ├── Descrição: Perfil personalizado para rafael.borges
+   └── Selecione as páginas/funcionalidades desejadas
+
+5. Clique "Salvar"
+
+6. Anote o ID do perfil criado (ex: profile-1234567890)
+
+7. Vá em "Gerenciar Usuários"
+
+8. Encontre rafael.borges@porschegt3cup.com.br
+
+9. Clique em "Editar"
+
+10. Selecione o novo perfil criado
+
+11. Clique "Salvar"
+
+12. ✅ Faça logout e login com rafael.borges
+
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────┐
+│ OPÇÃO 3: USAR PERFIL "OPERATOR" (ACESSO PADRÃO)                 │
+└─────────────────────────────────────────────────────────────────┘
+
+1. No SQL Editor, cole:
+
+   UPDATE auth.users
+   SET raw_user_meta_data = raw_user_meta_data || '{"profileId": "operator"}'::jsonb
+   WHERE email = 'rafael.borges@porschegt3cup.com.br';
+
+2. Clique RUN
+
+3. Limpe cache e faça login
+
+═══════════════════════════════════════════════════════════════════
+
+🔍 VERIFICAR SE FUNCIONOU
+
+Após escolher uma solução, execute no SQL Editor:
+
+SELECT 
+  u.email,
+  u.raw_user_meta_data->>'profileId' as profile_id,
+  p.name as profile_name,
+  CASE WHEN p.id IS NULL THEN '❌ INVÁLIDO' ELSE '✅ OK' END as status
+FROM auth.users u
+LEFT JOIN access_profiles p ON p.id = u.raw_user_meta_data->>'profileId'
+WHERE u.email = 'rafael.borges@porschegt3cup.com.br';
+
+Resultado esperado:
+┌──────────────────────────────┬────────────┬──────────────┬────────┐
+│ email                        │ profile_id │ profile_name │ status │
+├──────────────────────────────┼────────────┼──────────────┼────────┤
+│ rafael.borges@porschegt3...  │ admin      │ Administrador│ ✅ OK  │
+└──────────────────────────────┴────────────┴──────────────┴────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+📋 ENTENDENDO O PROBLEMA
+
+Quando você criou o perfil personalizado:
+1. ✅ Frontend gerou ID: "profile-1761463133033"
+2. ✅ Salvou no localStorage (cache local)
+3. ❌ NÃO salvou no Supabase (falha na API)
+4. ✅ Atribuiu ao usuário rafael.borges
+5. ❌ Quando usuário faz login, perfil não é encontrado no Supabase
+
+Por isso o erro aparece repetidamente!
+
+═══════════════════════════════════════════════════════════════════
+
+🧹 LIMPEZA DE PERFIS ÓRFÃOS (OPCIONAL)
+
+Para limpar perfis que não são usados por ninguém:
+
+1. Ver perfis órfãos:
+
+   WITH used_profiles AS (
+     SELECT DISTINCT raw_user_meta_data->>'profileId' as profile_id
+     FROM auth.users
+     WHERE raw_user_meta_data->>'profileId' IS NOT NULL
+   )
+   SELECT 
+     p.id,
+     p.name,
+     CASE WHEN up.profile_id IS NULL THEN '❌ ÓRFÃO' ELSE '✅ EM USO' END as status
+   FROM access_profiles p
+   LEFT JOIN used_profiles up ON up.profile_id = p.id
+   WHERE p.is_system = false;
+
+2. Deletar perfis órfãos (SE TIVER CERTEZA):
+
+   DELETE FROM access_profiles
+   WHERE id NOT IN (
+     SELECT DISTINCT raw_user_meta_data->>'profileId'
+     FROM auth.users
+     WHERE raw_user_meta_data->>'profileId' IS NOT NULL
+   )
+   AND is_system = false;
+
+═══════════════════════════════════════════════════════════════════
+
+✅ CHECKLIST PÓS-CORREÇÃO
+
+Após aplicar a solução:
+
+[✓] 1. ProfileId válido atribuído no Supabase Auth
+[✓] 2. Perfil existe na tabela access_profiles
+[✓] 3. Cache limpo (localStorage/sessionStorage)
+[✓] 4. Login bem-sucedido com rafael.borges
+[✓] 5. Console NÃO mostra erro "Perfil não encontrado"
+[✓] 6. Menu lateral aparece corretamente
+[✓] 7. Páginas carregam sem "Acesso Negado"
+
+═══════════════════════════════════════════════════════════════════
+
+🎯 RECOMENDAÇÃO FINAL
+
+👉 USE A OPÇÃO 1 (atribuir perfil "admin")
+
+Motivos:
+✅ Mais rápido (30 segundos)
+✅ Perfil "admin" sempre existe
+✅ Acesso total ao sistema
+✅ Sem necessidade de recriar perfil
+
+Depois você pode:
+- Criar novo perfil personalizado via interface
+- Atribuir ao usuário pela tela "Gerenciar Usuários"
+- Testar se funciona corretamente
+
+═══════════════════════════════════════════════════════════════════
+
+📞 ARQUIVOS DE SUPORTE
+
+FIX_PROFILE_1761463133033.sql - Scripts SQL completos
+TESTE_PERFIS_PERSONALIZADO.md - Diagnóstico detalhado
+GUIA_MIGRACAO_PERFIS_SUPABASE.md - Documentação completa
+
+═══════════════════════════════════════════════════════════════════
+
+🆘 SE AINDA NÃO FUNCIONAR
+
+1. Verifique se executou o UPDATE no Supabase SQL Editor
+2. Confirme que mostra "Success. 1 row updated"
+3. Limpe COMPLETAMENTE o cache do navegador
+4. Faça logout e login novamente
+5. Abra Console (F12) e procure por erros
+
+Se persistir, execute no Console após login:
+
+const user = JSON.parse(localStorage.getItem('porsche-cup-user'));
+console.log('👤 Usuário:', user);
+console.log('🆔 ProfileId:', user.profileId);
+
+const profiles = JSON.parse(localStorage.getItem('porsche-cup-profiles'));
+console.log('📋 Perfis:', profiles?.map(p => ({ id: p.id, name: p.name })));
+
+E envie os resultados para análise.
+
+═══════════════════════════════════════════════════════════════════
