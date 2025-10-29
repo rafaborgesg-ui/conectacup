@@ -1,10 +1,72 @@
 
   import { defineConfig } from 'vite';
   import react from '@vitejs/plugin-react-swc';
+  import { VitePWA } from 'vite-plugin-pwa';
   import path from 'path';
 
   export default defineConfig({
-    plugins: [react()],
+    plugins: [
+      react(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: 'auto',
+        workbox: {
+          navigateFallback: '/index.html',
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+          maximumFileSizeToCacheInBytes: 6 * 1024 * 1024, // permite até ~6MB
+          globIgnores: [
+            'assets/259c0344182d6b72c303b23272de9d50609534c2*.*', // grande background
+          ],
+          runtimeCaching: [
+            {
+              urlPattern: ({ request }) => request.destination === 'image',
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'images',
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // Supabase REST/storage/auth
+              urlPattern: /^https:\/\/[a-zA-Z0-9-.]+\.supabase\.co\/.*/,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'supabase-api',
+                networkTimeoutSeconds: 10,
+                cacheableResponse: { statuses: [0, 200, 204] },
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 },
+              },
+            },
+          ],
+        },
+        manifest: {
+          id: '/?source=pwa',
+          name: 'Conecta Cup',
+          short_name: 'Conectacup',
+          description: 'Gestão operacional Porsche Cup',
+          theme_color: '#000000',
+          background_color: '#000000',
+          display: 'standalone',
+          display_override: ['standalone', 'fullscreen'],
+          start_url: '/',
+          scope: '/',
+          orientation: 'portrait',
+          categories: ['productivity', 'business'],
+          icons: [
+            { src: '/icons/icon.svg', sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+            { src: '/icons/icon.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+            { src: '/icons/maskable.svg', sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' },
+          ],
+          shortcuts: [
+            { name: 'Gestão de Carga', short_name: 'Carga', url: '/?m=gestao-carga', description: 'Abrir Gestão de Carga' },
+            { name: 'Entrada de Estoque', short_name: 'Estoque', url: '/?m=tire-stock' },
+            { name: 'Relatórios', short_name: 'Relatórios', url: '/?m=reports' },
+          ],
+        },
+        includeAssets: ['icons/icon.svg', 'icons/maskable.svg'],
+      }),
+    ],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {

@@ -6,16 +6,39 @@ import * as kv from "./kv_store.tsx";
 
 const app = new Hono();
 
+// =============================
+// Supabase Clients (env-safe)
+// - Evita usar variáveis iniciando com SUPABASE_ (restritas pelo CLI) quando possível
+// - Usa uma cadeia de fallbacks para compatibilidade com diferentes ambientes
+// =============================
+const SUPABASE_URL =
+  Deno.env.get('SUPABASE_URL')
+  ?? Deno.env.get('PROJECT_URL')
+  ?? '';
+
+const SERVICE_ROLE_KEY =
+  Deno.env.get('SERVICE_ROLE_KEY')
+  ?? Deno.env.get('PRIVATE_SERVICE_ROLE_KEY')
+  ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  ?? '';
+
+const ANON_KEY =
+  Deno.env.get('ANON_KEY')
+  ?? Deno.env.get('PUBLIC_ANON_KEY')
+  ?? Deno.env.get('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  ?? Deno.env.get('SUPABASE_ANON_KEY')
+  ?? '';
+
 // Supabase Admin Client
 const supabaseAdmin = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+  SUPABASE_URL,
+  SERVICE_ROLE_KEY,
 );
 
 // Supabase Client (para operações não-admin)
 const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+  SUPABASE_URL,
+  ANON_KEY,
 );
 
 // ============================================

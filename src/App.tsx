@@ -7,6 +7,10 @@ import { SignUp } from './components/SignUp';
 import { PWAInstallPrompt } from './components/PWAInstallPrompt';
 import { Onboarding } from './components/Onboarding';
 import { OnboardingChecklist } from './components/OnboardingChecklist';
+// PWA: atualização automática e prompts
+// @ts-ignore - módulo virtual provido pelo vite-plugin-pwa
+import { registerSW } from 'virtual:pwa-register';
+import { toast } from 'sonner@2.0.3';
 import { QuickTips } from './components/QuickTips';
 import { ZoomPrevention } from './components/ZoomPrevention';
 import { DatabaseMigrationAlert } from './components/DatabaseMigrationAlert';
@@ -129,6 +133,31 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Registra o Service Worker e exibe prompts profissionais
+  useEffect(() => {
+    try {
+      const updateSW = registerSW({
+        immediate: true,
+        onNeedRefresh() {
+          const tId = toast.info('Nova versão disponível', {
+            description: 'Atualize para aplicar melhorias.',
+            action: {
+              label: 'Atualizar',
+              onClick: () => updateSW(true),
+            },
+          });
+          // Auto-close após 10s caso usuário ignore
+          setTimeout(() => toast.dismiss(tId), 10000);
+        },
+        onOfflineReady() {
+          toast.success('App pronto para uso offline');
+        },
+      });
+    } catch (e) {
+      // silencioso
+    }
+  }, []);
   const [dbError, setDbError] = useState<{ code?: string; message?: string } | null>(null);
 
   // 🔐 PROTEÇÃO ANTI-LOOP: Refs persistem entre re-renders
