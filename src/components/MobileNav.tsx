@@ -23,6 +23,7 @@ export function MobileNav({ currentModule, onModuleChange, onLogout, userRole }:
 
   // Mapeamento de IDs de menu para páginas (mesmo do Sidebar)
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
+    'pneus': 'PNEUS',
     'gestao-carga': 'GESTAO_CARGA',
     'solicitacao-frete': 'SOLICITACAO_FRETE',
     'dashboard': 'DASHBOARD',

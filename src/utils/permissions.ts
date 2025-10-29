@@ -29,6 +29,8 @@ export const PAGES = {
   // Menu externo controlado por RBAC
   GESTAO_CARGA: 'gestao_carga',
   SOLICITACAO_FRETE: 'solicitacao_frete',
+  // Grupo de funcionalidades de Pneus (menu pai)
+  PNEUS: 'pneus',
 } as const;
 
 export type PageKey = typeof PAGES[keyof typeof PAGES];
@@ -124,6 +126,7 @@ export const DEFAULT_PROFILES: Omit<AccessProfile, 'createdAt' | 'updatedAt'>[] 
     isDefault: true,
     isSystem: true,
     pages: [
+      PAGES.PNEUS,
       PAGES.DASHBOARD,
       PAGES.STOCK_ENTRY,
       PAGES.TIRE_MODEL,
@@ -149,6 +152,7 @@ export const DEFAULT_PROFILES: Omit<AccessProfile, 'createdAt' | 'updatedAt'>[] 
     isDefault: false,
     isSystem: true,
     pages: [
+      PAGES.PNEUS,
       PAGES.DASHBOARD,
       PAGES.STOCK_ENTRY,
       PAGES.TIRE_MODEL,
@@ -229,6 +233,7 @@ export const PAGE_LABELS: Record<PageKey, string> = {
   [PAGES.ARCS_UPDATE]: 'Atualização ARCS',
   [PAGES.GESTAO_CARGA]: 'Gestão de Carga',
   [PAGES.SOLICITACAO_FRETE]: 'Solicitação de frete',
+  [PAGES.PNEUS]: 'Pneus',
 };
 
 /**
@@ -279,6 +284,7 @@ export const FEATURE_LABELS: Record<FeatureKey, string> = {
  */
 export const PAGE_CATEGORIES = {
   'Operacional': [
+    PAGES.PNEUS,
     PAGES.DASHBOARD,
     PAGES.STOCK_ENTRY,
     PAGES.TIRE_MODEL,

@@ -25,6 +25,7 @@ export function Sidebar({ currentModule, onModuleChange, onLogout, userRole = 'o
 
   // Mapeamento de IDs de menu para páginas do sistema de permissões
   const menuToPageMap: Record<string, keyof typeof PAGES> = {
+    'pneus': 'PNEUS',
     'gestao-carga': 'GESTAO_CARGA',
     'solicitacao-frete': 'SOLICITACAO_FRETE',
     'dashboard': 'DASHBOARD',
