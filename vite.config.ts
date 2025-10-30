@@ -9,7 +9,8 @@
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'auto',
+        // Evita registro duplo do SW: usamos registro manual via virtual:pwa-register em App.tsx
+        injectRegister: null,
         workbox: {
           navigateFallback: '/index.html',
           globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
