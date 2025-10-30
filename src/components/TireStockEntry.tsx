@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { generateUUID } from '../utils/uuid';
-import { Search, CheckCircle, X, Package as PackageIcon, AlertCircle, Keyboard, CheckCircle2, Camera, Focus, FileUp, Layers, Plus, Upload, Undo2 } from 'lucide-react';
+import { Search, CheckCircle, X, Package as PackageIcon, AlertCircle, Keyboard, CheckCircle2, Camera, Focus, FileUp, Layers, Plus, Upload, Undo2, Zap } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';

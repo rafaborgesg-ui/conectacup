@@ -260,11 +260,10 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
           // 📱 Mobile: evitar zoom para não criar rolagem e manter cobertura total.
           // Em vez de usar transform para reposicionar, usamos backgroundPositionY negativo,
           // que não afeta o fluxo de layout e evita overflow.
-          // Zoom out: mobile reduzido em ~35% (mostra mais da imagem), desktop ~10%
-          // Mantemos sem transform no mobile para evitar overflow; usamos backgroundSize percentual
-          transform: isMobile ? 'none' : 'translateY(-15px) scale(0.90)',
-          backgroundSize: isMobile ? '65%' : 'cover',
-          backgroundPosition: isMobile ? 'center center' : 'center',
+          // Zoom out ~20% em desktop e ajuste menor no posicionamento mobile
+          transform: isMobile ? 'none' : 'translateY(-15px) scale(0.65)',
+          backgroundSize: 'cover',
+          backgroundPosition: isMobile ? 'center -50px' : 'center',
           width: '100%',
           height: '100%',
           minWidth: '100vw',
