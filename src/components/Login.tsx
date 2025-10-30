@@ -261,9 +261,9 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
           // Em vez de usar transform para reposicionar, usamos backgroundPositionY negativo,
           // que não afeta o fluxo de layout e evita overflow.
           // Zoom out ~20% em desktop e ajuste menor no posicionamento mobile
-          transform: isMobile ? 'none' : 'translateY(-15px) scale(0.65)',
+          transform: isMobile ? 'none' : 'translateY(-50px) scale(0.78)',
           backgroundSize: 'cover',
-          backgroundPosition: isMobile ? 'center -50px' : 'center',
+          backgroundPosition: isMobile ? 'center -90px' : 'center',
           width: '100%',
           height: '100%',
           minWidth: '100vw',
