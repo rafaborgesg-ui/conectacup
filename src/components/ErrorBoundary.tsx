@@ -1,8 +1,8 @@
-import React, { Component, ReactNode, ErrorInfo } from 'react';
+import React, { type ReactNode, type ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw, Home, ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -35,7 +35,7 @@ interface ErrorBoundaryState {
  *   <App />
  * </ErrorBoundary>
  */
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {

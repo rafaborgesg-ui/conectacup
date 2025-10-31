@@ -18,13 +18,17 @@ import {
 import { Card } from './ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { TrendingUp, Package, PieChart as PieChartIcon, BarChart3 } from 'lucide-react';
+import { type StockEntry, type Container, type TireModel } from '../utils/storage';
 
 interface DashboardChartsProps {
-  allEntries: any[];
-  activeEntries: any[];
-  containers: any[];
-  tireModels: any[];
+  allEntries: StockEntry[];
+  activeEntries: StockEntry[];
+  containers: Container[];
+  tireModels: TireModel[];
 }
+
+type LineChartPoint = { date: string; total: number; slick: number; wet: number };
+type DetailedChartPoint = { date: string } & Record<string, number>;
 
 export function DashboardCharts({ allEntries, activeEntries, containers, tireModels }: DashboardChartsProps) {
   const [timeRange, setTimeRange] = useState<'7' | '30' | 'monthly'>('7');
@@ -70,7 +74,7 @@ export function DashboardCharts({ allEntries, activeEntries, containers, tireMod
   // 📈 GRÁFICO DE LINHA: Entradas nos últimos dias ou meses
   const lineChartData = useMemo(() => {
     const today = new Date();
-    const data = [];
+    const data: LineChartPoint[] = [];
 
     if (timeRange === 'monthly') {
       // Visualização Mensal: últimos 6 meses
@@ -135,10 +139,10 @@ export function DashboardCharts({ allEntries, activeEntries, containers, tireMod
 
   // 📊 DADOS DETALHADOS: Por modelo de pneu
   const detailedChartData = useMemo(() => {
-    if (!detailView || !detailType) return [];
+    if (!detailView || !detailType) return [] as DetailedChartPoint[];
     
     const today = new Date();
-    const data = [];
+    const data: DetailedChartPoint[] = [];
 
     if (timeRange === 'monthly') {
       const monthsToShow = 6;
@@ -156,9 +160,9 @@ export function DashboardCharts({ allEntries, activeEntries, containers, tireMod
           return entryDate >= monthDate && entryDate < nextMonth && model?.type?.toLowerCase() === detailType;
         });
 
-        const dataPoint: any = {
+        const dataPoint: DetailedChartPoint = {
           date: monthDate.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }).replace('.', ''),
-        };
+        } as DetailedChartPoint;
 
         // Agrupar por modelo
         const modelGroups: { [key: string]: number } = {};
@@ -195,9 +199,9 @@ export function DashboardCharts({ allEntries, activeEntries, containers, tireMod
           return entryDate >= date && entryDate < nextDate && model?.type?.toLowerCase() === detailType;
         });
 
-        const dataPoint: any = {
+        const dataPoint: DetailedChartPoint = {
           date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
-        };
+        } as DetailedChartPoint;
 
         // Agrupar por modelo
         const modelGroups: { [key: string]: number } = {};
@@ -221,7 +225,7 @@ export function DashboardCharts({ allEntries, activeEntries, containers, tireMod
 
   // Obter lista de modelos únicos para o tipo selecionado
   const uniqueModels = useMemo(() => {
-    if (!detailType) return [];
+    if (!detailType) return [] as string[];
     
     const models = new Set<string>();
     allEntries.forEach(entry => {

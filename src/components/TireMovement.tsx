@@ -11,7 +11,7 @@ import { Checkbox } from './ui/checkbox';
 import { Progress } from './ui/progress';
 import { Textarea } from './ui/textarea';
 import { Skeleton } from './ui/skeleton';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { toastMovement, toastUndoable } from '../utils/toastHelpers';
 import {
   AlertDialog,
@@ -359,8 +359,8 @@ export function TireMovement() {
           return true;
         });
 
-        setSearchResults(validResults);
-        setShowSearchResults(results.length > 0);
+  setSearchResults(validResults);
+  setShowSearchResults(validResults.length > 0);
       } catch (error) {
         console.error('Erro ao buscar pneus:', error);
         setSearchResults([]);
@@ -407,16 +407,28 @@ export function TireMovement() {
         return;
       }
 
-      // Converte snake_case para camelCase
+      // Normaliza: garante snake_case do schema e preenche aliases camelCase para compatibilidade
       const tire: StockEntry = {
         id: data.id,
         barcode: data.barcode,
+        model_id: data.model_id,
+        model_name: data.model_name,
+        model_type: data.model_type,
+        container_id: data.container_id ?? null,
+        container_name: data.container_name ?? 'Sem Contêiner',
+        status: data.status,
+        session_id: data.session_id ?? null,
+        pilot: data.pilot ?? null,
+        team: data.team ?? null,
+        notes: data.notes ?? null,
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        // Aliases camelCase (para componentes que ainda usam camelCase)
         modelId: data.model_id,
         modelName: data.model_name,
         modelType: data.model_type,
-        containerId: data.container_id || '',
-        containerName: data.container_name || 'Sem Contêiner',
-        status: data.status,
+        containerId: data.container_id ?? null,
+        containerName: data.container_name ?? 'Sem Contêiner',
         createdAt: data.created_at,
         updatedAt: data.updated_at,
       };
@@ -447,7 +459,7 @@ export function TireMovement() {
     setShowSearchResults(false);
     setTargetContainer('');
     toast.success('Pneu selecionado', {
-      description: `${tire.modelName} - ${tire.containerName}`,
+      description: `${tire.modelName ?? tire.model_name} - ${tire.containerName ?? tire.container_name}`,
     });
   };
 
@@ -492,7 +504,7 @@ export function TireMovement() {
     const movement: TireMovement = {
       id: '', // Será gerado pelo banco
       barcode: selectedTire.barcode,
-      modelName: selectedTire.modelName,
+      modelName: selectedTire.model_name,
       modelType: (selectedTire.modelType || 'Slick') as 'Slick' | 'Wet',
       fromContainerId: selectedTire.containerId || '',
       fromContainerName: selectedTire.containerName || 'Sem Contêiner',
@@ -529,7 +541,7 @@ export function TireMovement() {
           const reverseMovement: TireMovement = {
             id: '',
             barcode: selectedTire.barcode,
-            modelName: selectedTire.modelName,
+            modelName: selectedTire.model_name,
             modelType: selectedTire.modelType as 'Slick' | 'Wet',
             fromContainerId: targetContainerId,
             fromContainerName: targetContainerName,
@@ -876,7 +888,7 @@ export function TireMovement() {
         movements.push({
           id: '', // Será gerado pelo banco
           barcode: tire.barcode,
-          modelName: tire.modelName,
+          modelName: tire.model_name,
           modelType: (tire.modelType || 'Slick') as 'Slick' | 'Wet',
           fromContainerId: tire.containerId || '',
           fromContainerName: tire.containerName || 'Sem Contêiner',

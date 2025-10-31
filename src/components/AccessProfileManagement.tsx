@@ -5,7 +5,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Checkbox } from './ui/checkbox';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ActionButton } from './ActionFeedback';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { getAccessToken } from '../utils/supabase/client';
@@ -31,6 +31,7 @@ import {
   PageKey,
   FeatureKey,
 } from '../utils/permissions';
+import { menuItems as NAV_MENU_ITEMS, menuToPageMap, type MenuItem } from '../navigation/menu';
 
 export function AccessProfileManagement() {
   const [profiles, setProfiles] = useState<AccessProfile[]>([]);
@@ -58,6 +59,8 @@ export function AccessProfileManagement() {
     pages: new Set(Object.keys(PAGE_CATEGORIES)),
     features: new Set(Object.keys(FEATURE_CATEGORIES)),
   });
+  // Expansão para árvore de menus dinâmica (perfís → Páginas Acessíveis)
+  const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set());
 
   // Carrega perfis do Supabase
   useEffect(() => {
@@ -420,6 +423,98 @@ export function AccessProfileManagement() {
     });
   };
 
+  // Helpers para árvore de menus → páginas
+  const getPageKeyFromMenuId = (id: string): PageKey | null => {
+    const enumKey = menuToPageMap[id];
+    return enumKey ? PAGES[enumKey] : null;
+  };
+
+  const collectPageKeys = (item: MenuItem): PageKey[] => {
+    const direct = getPageKeyFromMenuId(item.id);
+    const children = (item.subItems || []).flatMap(collectPageKeys);
+    return direct ? [direct, ...children] : children;
+  };
+
+  const areAllSelected = (pages: PageKey[]) => pages.every(p => formData.pages.includes(p));
+  const areSomeSelected = (pages: PageKey[]) => pages.some(p => formData.pages.includes(p));
+
+  const toggleMenuGroup = (item: MenuItem) => {
+    const pagesUnder = collectPageKeys(item);
+    if (pagesUnder.length === 0) return;
+    const allSelected = areAllSelected(pagesUnder);
+    setFormData(prev => ({
+      ...prev,
+      pages: allSelected
+        ? prev.pages.filter(p => !pagesUnder.includes(p))
+        : [...new Set([...prev.pages, ...pagesUnder])]
+    }));
+  };
+
+  const toggleSingleMenu = (item: MenuItem) => {
+    const pageKey = getPageKeyFromMenuId(item.id);
+    if (!pageKey) return;
+    setFormData(prev => ({
+      ...prev,
+      pages: prev.pages.includes(pageKey)
+        ? prev.pages.filter(p => p !== pageKey)
+        : [...prev.pages, pageKey]
+    }));
+  };
+
+  const toggleMenuExpand = (id: string) => {
+    setExpandedMenus(prev => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else n.add(id);
+      return n;
+    });
+  };
+
+  const renderMenuTree = (items: MenuItem[], level = 0) => {
+    return (
+      <div className={level === 0 ? 'space-y-2' : 'space-y-1.5'}>
+        {items.map(item => {
+          const pageKey = getPageKeyFromMenuId(item.id);
+          const childPages = collectPageKeys(item);
+          const hasChildren = (item.subItems && item.subItems.length > 0) || false;
+          const isExpanded = expandedMenus.has(item.id);
+          const allSel = childPages.length > 0 ? areAllSelected(childPages) : (pageKey ? formData.pages.includes(pageKey) : false);
+          const someSel = childPages.length > 0 ? areSomeSelected(childPages) && !allSel : false;
+
+          return (
+            <div key={item.id} className="space-y-1">
+              <div className="flex items-center gap-2">
+                {hasChildren ? (
+                  <button type="button" onClick={() => toggleMenuExpand(item.id)} className="text-gray-600 hover:text-gray-900">
+                    {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  </button>
+                ) : (
+                  <span className="w-4" />
+                )}
+
+                {/* Checkbox do grupo/folha */}
+                <Checkbox
+                  checked={allSel}
+                  onCheckedChange={() => (hasChildren ? toggleMenuGroup(item) : toggleSingleMenu(item))}
+                  className={someSel && !allSel ? 'opacity-50' : ''}
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {item.label}
+                </span>
+              </div>
+
+              {/* Filhos */}
+              {hasChildren && isExpanded && (
+                <div className="ml-6 pl-2 border-l border-gray-200">
+                  {renderMenuTree(item.subItems || [], level + 1)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="flex-1 p-3 sm:p-4 lg:p-8 w-full max-w-full overflow-x-hidden">
       <div className="max-w-7xl lg:mx-auto w-full">
@@ -462,48 +557,11 @@ export function AccessProfileManagement() {
                   />
                 </div>
 
-                {/* Páginas */}
+                {/* Páginas (dinâmico a partir do menu) */}
                 <div>
                   <Label className="mb-3 block">Páginas Acessíveis ({formData.pages.length})</Label>
                   <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto space-y-2">
-                    {Object.entries(PAGE_CATEGORIES).map(([category, pages]) => {
-                      const isExpanded = expandedCategories.pages.has(category);
-                      const allSelected = pages.every(p => formData.pages.includes(p));
-                      const someSelected = pages.some(p => formData.pages.includes(p));
-
-                      return (
-                        <div key={category} className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => toggleCategory('pages', category)}
-                              className="text-gray-600 hover:text-gray-900"
-                            >
-                              {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
-                            </button>
-                            <Checkbox
-                              checked={allSelected}
-                              onCheckedChange={() => toggleCategoryPages(category, pages as PageKey[])}
-                              className={someSelected && !allSelected ? 'opacity-50' : ''}
-                            />
-                            <span className="text-sm font-medium text-gray-700">{category}</span>
-                          </div>
-                          {isExpanded && (
-                            <div className="ml-8 space-y-1.5">
-                              {pages.map(page => (
-                                <div key={page} className="flex items-center gap-2">
-                                  <Checkbox
-                                    checked={formData.pages.includes(page)}
-                                    onCheckedChange={() => togglePage(page)}
-                                  />
-                                  <span className="text-sm text-gray-600">{PAGE_LABELS[page]}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                    {renderMenuTree(NAV_MENU_ITEMS)}
                   </div>
                 </div>
 

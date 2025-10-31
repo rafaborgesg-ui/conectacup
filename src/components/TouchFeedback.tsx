@@ -1,4 +1,4 @@
-import { ReactNode, useState, TouchEvent, CSSProperties } from 'react';
+import { ReactNode, useState, TouchEvent, CSSProperties, useRef } from 'react';
 
 interface TouchFeedbackProps {
   children: ReactNode;
@@ -48,7 +48,7 @@ export function TouchFeedback({
 }: TouchFeedbackProps) {
   const [isPressed, setIsPressed] = useState(false);
   const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
-  const longPressTimer = useState<NodeJS.Timeout | null>(null)[0];
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
   const handleTouchStart = (e: TouchEvent) => {
     if (disabled) return;
@@ -83,9 +83,8 @@ export function TouchFeedback({
         onLongPress();
         setIsPressed(false);
       }, longPressDuration);
-
       // Store timer to clear if touch ends early
-      Object.assign(longPressTimer, timer);
+      longPressTimer.current = timer as unknown as NodeJS.Timeout;
     }
   };
 
@@ -93,8 +92,9 @@ export function TouchFeedback({
     setIsPressed(false);
 
     // Clear long press timer
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
 
     // Trigger onPress if defined
@@ -107,8 +107,9 @@ export function TouchFeedback({
     setIsPressed(false);
 
     // Clear long press timer
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
   };
 

@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { ActionButton } from './ActionFeedback';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { getAccessToken, createClient } from '../utils/supabase/client';
@@ -439,10 +439,10 @@ export function UserManagement() {
       // Recarrega lista de usuários
       await loadUsers();
       resetForm();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving user:', error);
       toast.error('Erro ao salvar usuário', {
-        description: error.message,
+        description: error?.message || 'Não foi possível salvar o usuário.',
         duration: 4000,
       });
     } finally {
@@ -491,10 +491,10 @@ export function UserManagement() {
       
       // Recarrega lista
       await loadUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting user:', error);
       toast.error('Erro ao excluir usuário', {
-        description: error.message,
+        description: error?.message || 'Não foi possível excluir o usuário.',
         duration: 4000,
       });
     } finally {
@@ -527,10 +527,10 @@ export function UserManagement() {
       
       // Recarrega lista
       await loadUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling user status:', error);
       toast.error('Erro ao atualizar status', {
-        description: error.message,
+        description: error?.message || 'Não foi possível atualizar o status do usuário.',
         duration: 4000,
       });
     }
@@ -897,7 +897,7 @@ export function UserManagement() {
                             }
                             
                             // Cria 3 usuários de teste
-                            const testUsers = [
+                            const testUsers: Array<{ email: string; password: string; name: string; role: 'admin' | 'operator'; username: string }> = [
                               {
                                 email: 'admin@porschegt3cup.com.br',
                                 password: 'Admin123!',

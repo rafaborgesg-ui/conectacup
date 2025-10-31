@@ -33,28 +33,37 @@ export interface StockEntry {
   model_id: string; // Alinhado com schema do Supabase
   model_name: string;
   model_type: 'Slick' | 'Wet';
-  container_id: string;
+  container_id: string | null;
   container_name: string;
   status?: string; // Dinâmico baseado em tire_status
-  session_id?: string;
-  pilot?: string;
-  team?: string;
-  notes?: string;
+  session_id?: string | null;
+  pilot?: string | null;
+  team?: string | null;
+  notes?: string | null;
   created_at: string;
   updated_at?: string;
   created_by?: string;
   // Campos ARCS - dados detalhados do pneu
-  numero?: string;
-  categoria?: string;
-  ano?: string;
-  etapa?: string;
-  pista?: string;
-  campeonato?: string;
-  set_pneu?: string;
-  lado?: string;
-  local?: string;
-  tempo_vida?: string;
-  data_hora?: string;
+  numero?: string | null;
+  categoria?: string | null;
+  ano?: string | null;
+  etapa?: string | null;
+  pista?: string | null;
+  campeonato?: string | null;
+  set_pneu?: string | null;
+  lado?: string | null;
+  local?: string | null;
+  tempo_vida?: string | null;
+  data_hora?: string | null;
+
+  // Aliases camelCase (compatibilidade com componentes antigos)
+  modelId?: string;
+  modelName?: string;
+  modelType?: 'Slick' | 'Wet';
+  containerId?: string | null;
+  containerName?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TireMovement {
@@ -103,6 +112,8 @@ export interface TireStatus {
   name: string;
   color: string;
   is_default: boolean;
+  // Alias camelCase para compatibilidade
+  isDefault?: boolean;
   created_at: string;
   updated_at?: string;
   created_by?: string;
@@ -355,7 +366,6 @@ export async function updateContainer(id: string, container: Partial<Container>)
   // Não implementado - componente ContainerRegistration usa Supabase direto
   console.warn('⚠️ updateContainer não implementado - use Supabase direto');
   throw new Error('Use a tela de Cadastro de Contêineres para gerenciar contêineres');
-  return result.data;
 }
 
 export async function deleteContainer(id: string): Promise<void> {

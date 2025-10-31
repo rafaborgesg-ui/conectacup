@@ -1,0 +1,3 @@
+-- This file is intentionally empty.
+-- The canonical PostgreSQL migration is: 2025-10-31_001_tire_discards.psql
+-- Kept as a placeholder to avoid MSSQL extension diagnostics on .sql files.

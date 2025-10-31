@@ -10,7 +10,7 @@ import { Progress } from './ui/progress';
 import { Skeleton } from './ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Textarea } from './ui/textarea';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { BarcodeScanner } from './BarcodeScanner';
 import { PageHeader } from './PageHeader';
 import { EmptyState } from './EmptyState';
@@ -104,8 +104,12 @@ export function TireStockEntry() {
   const [spreadsheetProgress, setSpreadsheetProgress] = useState(0);
 
   // 🔐 VALIDAÇÃO DE FORMULÁRIO
-  // Mock simples para compatibilidade temporária
-  const barcodeValidation = {
+  // Mock simples para compatibilidade temporária (somente campo 'barcode')
+  const barcodeValidation: {
+    errors: { barcode?: string };
+    validating: { barcode?: boolean };
+    validateField: (field: 'barcode', value: string) => void;
+  } = {
     errors: {},
     validating: {},
     validateField: () => {},
@@ -823,8 +827,8 @@ export function TireStockEntry() {
       // Dispara evento para onboarding checklist
       window.dispatchEvent(new Event('tire-added'));
     } else if (successCount > 0 && (duplicateCount > 0 || errorCount > 0)) {
-      haptic.warning();
-      const details = [];
+  haptic.warning();
+  const details: string[] = [];
       if (successCount > 0) details.push(`${successCount} cadastrados`);
       if (duplicateCount > 0) details.push(`${duplicateCount} duplicados`);
       if (errorCount > 0) details.push(`${errorCount} com erro`);
@@ -1319,7 +1323,7 @@ export function TireStockEntry() {
             </SelectTrigger>
             <SelectContent>
               {containers.map((container) => {
-                const percentage = ((container.current_stock / container.capacity) * 100).toFixed(0);
+                const percentage = container.capacity > 0 ? (container.current_stock / container.capacity) * 100 : 0;
                 const isFull = container.current_stock >= container.capacity;
                 const isAlmostFull = percentage >= 90 && !isFull;
                 
@@ -1346,7 +1350,7 @@ export function TireStockEntry() {
                         isAlmostFull ? 'text-yellow-600 font-semibold' :
                         'text-gray-500'
                       }`}>
-                        ({percentage}%)
+                        ({Math.round(percentage)}%)
                       </span>
                       {isFull && (
                         <span className="text-xs text-red-600 font-bold ml-auto">CHEIO</span>

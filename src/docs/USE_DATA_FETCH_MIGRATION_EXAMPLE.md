@@ -15,7 +15,7 @@ Vamos migrar um componente típico que busca dados do Supabase.
 ```tsx
 import { useState, useEffect } from 'react';
 import { createClient } from '../utils/supabase/client';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 export function ContainerList() {
   // Estados duplicados em 15+ componentes

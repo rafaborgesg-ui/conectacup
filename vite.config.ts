@@ -119,6 +119,19 @@
     build: {
       target: 'esnext',
       outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ['react', 'react-dom'],
+            recharts: ['recharts'],
+            xlsx: ['xlsx'],
+            pdf: ['jspdf', 'jspdf-autotable', 'html2canvas'],
+            supabase: ['@supabase/supabase-js', '@jsr/supabase__supabase-js'],
+            icons: ['lucide-react'],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 2000,
     },
     server: {
       port: 3000,

@@ -6,7 +6,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Separator } from './ui/separator';
-import { ScrollArea } from './ui/scroll-area';
 import { cn } from './ui/utils';
 
 interface FilterOption {
@@ -201,7 +200,7 @@ export function MobileFilters({
       {/* Sheet Content */}
       <SheetContent 
         side="right" 
-        className="w-full sm:max-w-md flex flex-col p-0"
+        className="w-full sm:max-w-md h-full min-h-0 flex flex-col p-0"
       >
         {/* Header */}
         <SheetHeader className="p-6 pb-4 border-b">
@@ -230,8 +229,11 @@ export function MobileFilters({
           )}
         </SheetHeader>
 
-        {/* Filtros scrolláveis */}
-        <ScrollArea className="flex-1 px-6 py-4">
+        {/* Filtros scrolláveis (corrige travamento no mobile) */}
+        <div 
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-6 py-4 touch-pan-y"
+          style={{ WebkitOverflowScrolling: 'touch' as any }}
+        >
           <div className="space-y-6 pb-6">
             {sections.map((section) => (
               <FilterSectionComponent
@@ -241,7 +243,7 @@ export function MobileFilters({
               />
             ))}
           </div>
-        </ScrollArea>
+        </div>
 
         {/* Footer com ações */}
         <div className="p-6 pt-4 border-t bg-white space-y-3">

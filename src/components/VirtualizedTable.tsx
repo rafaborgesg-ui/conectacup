@@ -264,7 +264,7 @@ function VirtualizedTableInner<T extends { id?: string | number }>(props: Virtua
         <div className="grid" style={{ gridTemplateColumns: columns.map(c => c.width || '1fr').join(' ') }}>
           {columns.map((column, idx) => (
             <DraggableColumnHeader
-              key={`${column.key}-${idx}`}
+              key={`${String(column.key)}-${idx}`}
               column={column}
               index={idx}
               moveColumn={moveColumn}

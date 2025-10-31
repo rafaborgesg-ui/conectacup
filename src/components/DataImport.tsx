@@ -6,7 +6,7 @@ import { Label } from './ui/label';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Badge } from './ui/badge';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { getTireModels, getTireModelsSync, getContainers, checkBarcodeExists, getStockEntries, getStockEntriesSync, saveStockEntry, type StockEntry } from '../utils/storage';
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { getAccessToken, createClient } from '../utils/supabase/client';
@@ -141,7 +141,7 @@ export function DataImport() {
     return model || null;
   };
 
-  const parseExcelFormat = (text: string): StockEntry[] => {
+  const parseExcelFormat = async (text: string): Promise<StockEntry[]> => {
     const lines = text.split('\n').filter(line => line.trim());
     const entries: StockEntry[] = [];
     const errors: string[] = [];
@@ -265,7 +265,7 @@ export function DataImport() {
       }
 
       // Verifica se já existe
-      if (checkBarcodeExists(barcode)) {
+      if (await checkBarcodeExists(barcode)) {
         errors.push(`Linha ${i + 1}: Código ${barcode} já cadastrado no sistema`);
         continue;
       }
@@ -398,14 +398,14 @@ export function DataImport() {
     }
   };
 
-  const handleExcelPaste = () => {
+  const handleExcelPaste = async () => {
     if (!excelData.trim()) {
       toast.error('Nenhum dado para processar');
       return;
     }
 
     try {
-      const entries = parseExcelFormat(excelData);
+  const entries = await parseExcelFormat(excelData);
       
       if (entries.length === 0) {
         toast.error('Nenhum dado válido encontrado', {

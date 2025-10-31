@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Eye, EyeOff, Lock, User, CheckCircle2, AlertCircle } from 'lucide-react';
 import porscheCupLogo from 'figma:asset/3ae08ff326060d9638298673cda23da363101b9f.png';
 import bgImage from 'figma:asset/259c0344182d6b72c303b23272de9d50609534c2.png';
@@ -257,13 +257,9 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
         style={{
           backgroundImage: `url(${bgImage})`,
           opacity: 1.0,
-          // 📱 Mobile: evitar zoom para não criar rolagem e manter cobertura total.
-          // Em vez de usar transform para reposicionar, usamos backgroundPositionY negativo,
-          // que não afeta o fluxo de layout e evita overflow.
-          // Zoom out ~20% em desktop e ajuste menor no posicionamento mobile
-          transform: isMobile ? 'none' : 'translateY(-50px) scale(0.78)',
+          transform: 'translateY(-150px)',
           backgroundSize: 'cover',
-          backgroundPosition: isMobile ? 'center -90px' : 'center',
+          backgroundPosition: 'center',
           width: '100%',
           height: '100%',
           minWidth: '100vw',
@@ -287,11 +283,7 @@ export function Login({ onLogin, onSignUp }: LoginProps) {
         }} />
       </div>
 
-      <div 
-        className="w-full max-w-[360px] px-4 sm:max-w-xs sm:px-0 relative z-10 mt-56"
-        // 📱 Mobile: reduzir a margem superior para caber sem rolagem vertical
-        style={{ marginTop: isMobile ? '4.5rem' as any : undefined }}
-      >
+      <div className="w-full max-w-[360px] px-4 sm:max-w-xs sm:px-0 relative z-10 mt-56">
         {/* Login Card */}
         <div className="space-y-3">
           <form onSubmit={handleSubmit} className="space-y-2">

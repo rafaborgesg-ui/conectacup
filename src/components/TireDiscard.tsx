@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Textarea } from './ui/textarea';
 import { Progress } from './ui/progress';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { toastDiscard, toastUndoable } from '../utils/toastHelpers';
 import { useFormValidation } from '../utils/useFormValidation';
 import { ValidatedInput, ValidatedTextarea } from './ValidatedInput';
@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from './ui/alert-dialog';
 import { createClient } from '../utils/supabase/client';
+import { type StockEntry } from '../utils/storage';
 
 interface DiscardedTire {
   id: string;
@@ -982,13 +983,19 @@ export function TireDiscard() {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Slick:</span>
                         <span className="text-gray-900">
-                          {selectedTires.filter(t => t.modelType === 'Slick').length}
+                          {selectedTires.filter(t => {
+                            const model = tireModels.find(m => m.id === (t as any).model_id);
+                            return model?.type === 'Slick';
+                          }).length}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Wet:</span>
                         <span className="text-gray-900">
-                          {selectedTires.filter(t => t.modelType === 'Wet').length}
+                          {selectedTires.filter(t => {
+                            const model = tireModels.find(m => m.id === (t as any).model_id);
+                            return model?.type === 'Wet';
+                          }).length}
                         </span>
                       </div>
                     </div>

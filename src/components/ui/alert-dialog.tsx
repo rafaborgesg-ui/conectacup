@@ -78,9 +78,9 @@ const AlertDialogContent = React.forwardRef<
           if (typeof ref === 'function') {
             ref(node);
           } else if (ref) {
-            ref.current = node;
+            (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
           }
-          dialogRef.current = node;
+          (dialogRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
         }}
         {...props}
         data-slot="alert-dialog-content"

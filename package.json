@@ -1,5 +1,5 @@
 {
-      "name": "Porsche Cup",
+      "name": "conectacup",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -57,10 +57,13 @@
             "xlsx": "*"
       },
       "devDependencies": {
-            "@types/node": "^20.10.0",
-            "@vitejs/plugin-react-swc": "^3.10.2",
-            "vite": "6.3.5",
-            "vite-plugin-pwa": "^1.1.0"
+                  "@types/node": "^20.10.0",
+                  "@types/react": "^18.3.4",
+                  "@types/react-dom": "^18.3.0",
+                  "typescript": "^5.6.3",
+                  "@vitejs/plugin-react-swc": "^3.10.2",
+                  "vite": "6.3.5",
+                  "vite-plugin-pwa": "^1.1.0"
       },
       "scripts": {
             "dev": "vite",

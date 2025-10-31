@@ -22,7 +22,7 @@ Adicionar funcionalidade de **Exportação para Excel** no Monitor de Ocupação
 import { FileSpreadsheet } from 'lucide-react';
 import { Button } from './ui/button';
 import { exportContainerOccupancyToExcel } from '../utils/excelExport';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 ```
 
 ### 2. Estados Adicionados

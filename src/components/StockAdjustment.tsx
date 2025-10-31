@@ -6,7 +6,7 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Label } from './ui/label';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { toastUndoable } from '../utils/toastHelpers';
 import { ActionButton } from './ActionFeedback';
 import { MultiSelect } from './ui/multi-select';
@@ -40,17 +40,17 @@ interface TireEntry {
   modelId: string;
   modelName: string;
   modelType: 'Slick' | 'Wet';
-  containerId: string;
-  containerName: string;
+  containerId: string | null;
+  containerName: string | null;
   timestamp: string;
   status?: string;
-  sessionId?: string;
-  pilot?: string;
-  team?: string;
-  ano?: string;
-  etapa?: string;
-  categoria?: string;
-  campeonato?: string;
+  sessionId?: string | null;
+  pilot?: string | null;
+  team?: string | null;
+  ano?: string | null;
+  etapa?: string | null;
+  categoria?: string | null;
+  campeonato?: string | null;
 }
 
 // Deleta um pneu via API
@@ -221,7 +221,7 @@ export function StockAdjustment() {
       const allEntries = await getStockEntries(true);
       
       // Mapeia para o formato esperado pelo componente
-      const mappedEntries = (allEntries || []).map((entry: StockEntry) => ({
+  const mappedEntries: TireEntry[] = (allEntries || []).map((entry: StockEntry): TireEntry => ({
         id: entry.id,
         barcode: entry.barcode,
         modelId: entry.model_id,
@@ -238,7 +238,7 @@ export function StockAdjustment() {
         etapa: entry.etapa,
         categoria: entry.categoria,
         campeonato: entry.campeonato,
-      }));
+  }));
       
       setEntries(mappedEntries);
     } catch (error) {
@@ -367,7 +367,7 @@ export function StockAdjustment() {
     }
 
     if (filterContainer.length > 0) {
-      filtered = filtered.filter(entry => filterContainer.includes(entry.containerName));
+      filtered = filtered.filter(entry => filterContainer.includes(entry.containerName || 'Sem Contêiner'));
     }
 
     if (filterStatus.length > 0) {
@@ -473,7 +473,7 @@ export function StockAdjustment() {
     setEditFormData({
       barcode: entry.barcode,
       modelId: entry.modelId,
-      containerId: entry.containerId,
+      containerId: entry.containerId || '',
       timestamp: entry.timestamp,
       status: entry.status || 'Novo',
       etapa: entry.etapa || 'no-stage',
@@ -976,7 +976,8 @@ export function StockAdjustment() {
       .reduce((map, e) => {
         // Apenas adiciona se tiver ID válido e não vazio
         if (e.containerId && e.containerId !== '') {
-          map.set(e.containerId, { id: e.containerId, name: e.containerName });
+          const cid = e.containerId as string;
+          map.set(cid, { id: cid, name: e.containerName || 'Sem Contêiner' });
         }
         return map;
       }, new Map<string, { id: string; name: string }>())

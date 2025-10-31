@@ -15,6 +15,7 @@ import { ErrorState } from './ErrorState';
 import { ContainerOccupancyMonitor } from './ContainerOccupancyMonitor';
 import { AnimatedTransition, AnimatedList, AnimatedListItem } from './AnimatedTransition';
 import { StatCard, StatCardSkeleton } from './StatCard';
+import { type StockEntry, type Container, type TireModel } from '../utils/storage';
 
 interface StatCardData {
   title: string;
@@ -35,10 +36,10 @@ export function Dashboard() {
   const { statusList, getStatusByName } = useTireStatus();
   
   // States para dados da tabela detalhada
-  const [allEntries, setAllEntries] = useState<any[]>([]);
-  const [activeEntries, setActiveEntries] = useState<any[]>([]);
-  const [containers, setContainers] = useState<any[]>([]);
-  const [tireModels, setTireModels] = useState<any[]>([]);
+  const [allEntries, setAllEntries] = useState<StockEntry[]>([]);
+  const [activeEntries, setActiveEntries] = useState<StockEntry[]>([]);
+  const [containers, setContainers] = useState<Container[]>([]);
+  const [tireModels, setTireModels] = useState<TireModel[]>([]);
 
   // Helper: Converte hex para rgba
   const hexToRgba = (hex: string, alpha: number = 1): string => {
@@ -146,7 +147,8 @@ export function Dashboard() {
       // DEBUG: Mostra status cadastrados na tabela tire_status
       console.log('\n📋 DEBUG - Status cadastrados na tabela tire_status:');
       (tireStatusData || []).forEach((status: any, index: number) => {
-        console.log(`  ${index + 1}. "${status.name}" (length: ${status.name.length}, charCodes: ${Array.from(status.name).map((c: string) => c.charCodeAt(0)).join(',')})`);
+        const name = String(status.name ?? '');
+        console.log(`  ${index + 1}. "${name}" (length: ${name.length}, charCodes: ${[...name].map((c) => c.charCodeAt(0)).join(',')})`);
       });
       
       // Salva nos states para uso na tabela detalhada
@@ -171,7 +173,8 @@ export function Dashboard() {
         return acc;
       }, {});
       Object.entries(statusDistribution).forEach(([status, count]) => {
-        console.log(`  "${status}": ${count} pneus (length: ${status.length}, charCodes: ${Array.from(status).map((c: string) => c.charCodeAt(0)).join(',')})`);
+        const s = String(status);
+        console.log(`  "${s}": ${count} pneus (length: ${s.length}, charCodes: ${[...s].map((c) => c.charCodeAt(0)).join(',')})`);
       });
       
       console.log('\n📊 DEBUG - Distribuição de Status (APENAS ATIVOS):');
@@ -391,7 +394,7 @@ export function Dashboard() {
       {selectedCard && (
         <Card className="p-0 bg-white border border-gray-200 shadow-lg overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
           {(() => {
-            let filteredEntries = [];
+            let filteredEntries: StockEntry[] = [];
             let title = '';
             let description = '';
             let statusColor = '';

@@ -1,3 +1,6 @@
+// @ts-nocheck
+// This file targets Deno runtime (jsr:, npm: imports, Deno.env) and is excluded from the web app's TS build.
+// Type checking is disabled here to avoid false positives in the Vite/React toolchain.
 import { Hono } from "npm:hono@4";
 import { cors } from "npm:hono@4/cors";
 import { logger } from "npm:hono@4/logger";

@@ -54,10 +54,10 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
       }
 
       // Screen Orientation API - força landscape (totalmente opcional)
-      if (screen.orientation && screen.orientation.lock) {
+      if ((screen as any).orientation && (screen as any).orientation.lock) {
         try {
-          originalOrientation.current = screen.orientation.type;
-          await screen.orientation.lock('landscape');
+          originalOrientation.current = (screen as any).orientation.type;
+          await (screen as any).orientation.lock('landscape');
           // Sucesso silencioso
         } catch (err: any) {
           // Falha silenciosa - nem todos os browsers suportam
@@ -75,9 +75,9 @@ export function BarcodeScanner({ onScan, onClose, isOpen }: BarcodeScannerProps)
   const exitFullscreenLandscape = async () => {
     try {
       // Destravar orientação (silencioso)
-      if (screen.orientation && screen.orientation.unlock) {
+      if ((screen as any).orientation && (screen as any).orientation.unlock) {
         try {
-          screen.orientation.unlock();
+          (screen as any).orientation.unlock();
         } catch (err) {
           // Erro silencioso - esperado em muitos browsers
         }

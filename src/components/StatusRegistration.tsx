@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from './ui/alert-dialog';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { createClient } from '../utils/supabase/client';
 
 interface TireStatus {
@@ -23,6 +23,8 @@ interface TireStatus {
   name: string;
   color: string;
   display_order?: number;
+  // Alias usado em algumas partes da UI
+  isDefault?: boolean;
   created_at?: string;
   updated_at?: string;
 }

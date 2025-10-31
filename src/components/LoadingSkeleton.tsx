@@ -1,12 +1,14 @@
 import { cn } from '../components/ui/utils';
+import type { CSSProperties } from 'react';
 import { Card } from './ui/card';
 
 interface SkeletonProps {
   className?: string;
+  style?: CSSProperties;
 }
 
 // Skeleton básico (base para outros)
-export function Skeleton({ className }: SkeletonProps) {
+export function Skeleton({ className, style }: SkeletonProps) {
   return (
     <div 
       className={cn(
@@ -15,7 +17,8 @@ export function Skeleton({ className }: SkeletonProps) {
         className
       )}
       style={{
-        animation: 'shimmer 2s ease-in-out infinite'
+        animation: 'shimmer 2s ease-in-out infinite',
+        ...style
       }}
     />
   );

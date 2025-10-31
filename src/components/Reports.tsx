@@ -11,7 +11,7 @@ import { type StockEntry, type TireModel } from '../utils/storage';
 import { StatusSelect } from './StatusSelect';
 import { StatusBadge } from './StatusBadge';
 import { createClient } from '../utils/supabase/client';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { MultiSelect } from './ui/multi-select';
@@ -84,7 +84,7 @@ export function Reports() {
   const [historyItemsPerPage, setHistoryItemsPerPage] = useState(200);
   const [historySearchTerm, setHistorySearchTerm] = useState('');
   const [dashboardStats, setDashboardStats] = useState<StatCard[]>([]);
-  const [selectedCard, setSelectedCard] = useState<'total' | 'active' | 'new' | 'discard' | 'discard-pilot' | 'pilot' | null>(null);
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
 
   // Estados para filtros da aba Ocupação de Contêineres
   const [occupancySearchTerm, setOccupancySearchTerm] = useState('');

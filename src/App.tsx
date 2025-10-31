@@ -10,7 +10,8 @@ import { OnboardingChecklist } from './components/OnboardingChecklist';
 // PWA: atualização automática e prompts
 // @ts-ignore - módulo virtual provido pelo vite-plugin-pwa
 import { registerSW } from 'virtual:pwa-register';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
+import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { QuickTips } from './components/QuickTips';
 import { ZoomPrevention } from './components/ZoomPrevention';
 import { DatabaseMigrationAlert } from './components/DatabaseMigrationAlert';
@@ -240,7 +241,7 @@ export default function App() {
           setIsAuthenticated(true);
           
           // 🔐 RBAC: Define profileId baseado no role se não estiver definido
-          const profileId = user.profileId || user.role;
+          const profileId = (user as any).profileId || user.role;
           
           // Salva dados do usuário separadamente
           localStorage.setItem('porsche-cup-user', JSON.stringify({
@@ -309,7 +310,7 @@ export default function App() {
     const supabase = createClient();
     
     // 🔐 OAuth Callback Listener - Detecta retorno do Google OAuth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent | null, session: Session | null) => {
       // 🚨 PROTEÇÃO: Ignora se event for undefined/null
       if (!event) {
         console.warn('⚠️ Evento de auth é null/undefined - ignorando');
@@ -793,13 +794,17 @@ export default function App() {
       </main>
       
       <PWAInstallPrompt />
-      <QuickTips />
-  {ONBOARDING_ENABLED && <OnboardingChecklist />}
+  <QuickTips module={currentModule} />
+  {ONBOARDING_ENABLED && <OnboardingChecklist onModuleChange={handleModuleChange} />}
       <Toaster />
       
       {/* Onboarding Modal */}
       {ONBOARDING_ENABLED && showOnboarding && (
-        <Onboarding onComplete={() => setShowOnboarding(false)} />
+        <Onboarding 
+          userRole={userRole}
+          onComplete={() => setShowOnboarding(false)}
+          onModuleChange={handleModuleChange}
+        />
       )}
       </div>
     </TireStatusProvider>

@@ -169,9 +169,9 @@ export const AnimatedTransition = memo(({
   const customVariants = duration ? {
     ...selectedVariants,
     visible: {
-      ...selectedVariants.visible,
+      ...(selectedVariants as any).visible,
       transition: {
-        ...selectedVariants.visible.transition,
+        ...((selectedVariants as any).visible?.transition ?? {}),
         duration,
         delay
       }
@@ -179,9 +179,9 @@ export const AnimatedTransition = memo(({
   } : {
     ...selectedVariants,
     visible: {
-      ...selectedVariants.visible,
+      ...(selectedVariants as any).visible,
       transition: {
-        ...selectedVariants.visible.transition,
+        ...((selectedVariants as any).visible?.transition ?? {}),
         delay
       }
     }

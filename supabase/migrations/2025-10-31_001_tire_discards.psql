@@ -1,0 +1,63 @@
+-- Supabase/PostgreSQL migration: tire_discards
+-- Created: 2025-10-31
+-- Notes:
+-- - This script is for PostgreSQL (Supabase), not Microsoft SQL Server.
+-- - If your editor shows errors, set the file language to "PostgreSQL".
+
+-- Ensure required extension for UUID generation
+create extension if not exists "pgcrypto";
+
+-- Create table if not exists
+create table if not exists public.tire_discards (
+  id uuid primary key default gen_random_uuid(),
+  barcode varchar(255) not null,
+  model_name varchar(255) not null,
+  model_type varchar(50) not null check (model_type in ('Slick', 'Wet')),
+  discard_reason varchar(100),
+  container_name varchar(255),
+  created_at timestamptz not null default now(),
+  created_by uuid,
+  -- Optional reference to auth.users (uncomment if desired)
+  -- constraint fk_created_by_user foreign key (created_by) references auth.users(id) on delete set null
+  notes text
+);
+
+-- Helpful indexes
+create index if not exists idx_tire_discards_barcode on public.tire_discards (barcode);
+create index if not exists idx_tire_discards_created_at on public.tire_discards (created_at);
+
+-- Enable Row Level Security
+alter table public.tire_discards enable row level security;
+
+-- Policies: allow authenticated users to read and insert
+drop policy if exists "tire_discards_select_authenticated" on public.tire_discards;
+create policy "tire_discards_select_authenticated"
+  on public.tire_discards
+  for select
+  using (true);
+
+drop policy if exists "tire_discards_insert_authenticated" on public.tire_discards;
+create policy "tire_discards_insert_authenticated"
+  on public.tire_discards
+  for insert
+  with check (true);
+
+-- Optional: restrict updates/deletes to creator (uncomment if needed)
+-- drop policy if exists "tire_discards_update_by_owner" on public.tire_discards;
+-- create policy "tire_discards_update_by_owner"
+--   on public.tire_discards
+--   for update
+--   using (created_by = auth.uid())
+--   with check (created_by = auth.uid());
+
+-- drop policy if exists "tire_discards_delete_by_owner" on public.tire_discards;
+-- create policy "tire_discards_delete_by_owner"
+--   on public.tire_discards
+--   for delete
+--   using (created_by = auth.uid());
+
+-- Grants (Supabase uses RLS; grants here are typically permissive)
+grant select on public.tire_discards to anon, authenticated, service_role;
+grant insert on public.tire_discards to authenticated, service_role;
+
+-- End of migration

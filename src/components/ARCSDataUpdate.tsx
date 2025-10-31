@@ -4,7 +4,7 @@ import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Alert, AlertDescription } from './ui/alert';
 import { Progress } from './ui/progress';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { getStockEntries, updateStockEntryByBarcode, getTireModels, getContainers, saveStockEntry, type StockEntry, type TireModel, type Container } from '../utils/storage';
 
@@ -368,7 +368,7 @@ export function ARCSDataUpdate() {
                 barcode: normalizedSerial,
                 model_id: model.id,
                 model_name: model.name,
-                model_type: model.type,
+                model_type: model.type as 'Slick' | 'Wet',
                 container_id: null, // Sem contêiner físico
                 container_name: 'Sem Contêiner', // Padrão do sistema
                 pilot: record.piloto || null,
@@ -403,9 +403,9 @@ export function ARCSDataUpdate() {
                   barcode: normalizedSerial,
                   model_id: model.id,
                   model_name: model.name,
-                  model_type: model.type,
-                  container_id: defaultContainer.id,
-                  container_name: defaultContainer.name,
+                  model_type: model.type as 'Slick' | 'Wet',
+                  container_id: null,
+                  container_name: 'Sem Contêiner',
                   status: 'Novo',
                   created_at: new Date().toISOString(),
                 } as StockEntry;
@@ -522,7 +522,7 @@ export function ARCSDataUpdate() {
       console.log('');
       
       if (totalProcessed > 0) {
-        const parts = [];
+  const parts: string[] = [];
         if (result.updated > 0) parts.push(`${result.updated} atualizados`);
         if (result.created > 0) parts.push(`${result.created} cadastrados`);
         
@@ -551,10 +551,11 @@ export function ARCSDataUpdate() {
       setResult(result);
       setProgress(null);
       
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Erro ao processar planilha:', error);
+      const description = error instanceof Error ? error.message : 'Verifique o formato do arquivo.';
       toast.error('Erro ao processar planilha', {
-        description: error.message || 'Verifique o formato do arquivo.',
+        description,
       });
       setProgress(null);
     } finally {
